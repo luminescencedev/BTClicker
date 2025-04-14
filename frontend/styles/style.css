@@ -25,41 +25,41 @@ article button:hover{
     border: solid rgb(181, 181, 181) 2px;
 }
 /* //////////////////////////////
-//////////// UPGRADE //////////// 
+//////////// clicker //////////// 
 ///////////////////////////////// */
-#upgrade{
+#clicker{
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
     margin: 0 1%;
 }
-#upgrade>span{
+#clicker>span{
     width: 100%;
     display: flex;
     justify-content: end;
 }
-#upgrade div{
+#clicker div{
     width: 25%;
     margin-right: 2%;
     display: flex;
     flex-wrap: wrap
 }
-#upgrade div span{
+#clicker div span{
     width: 100%;
     margin-bottom: 5%;
 }
-#upgrade form{
+#clicker form{
 
     width: 100%;
     display: flex;
     justify-content: space-between;
 }
-#upgrade select{
+#clicker select{
     border: solid black 1px;
     border-radius: .2em;
     margin-right: 2%;
 }
-#upgrade input{
+#clicker input{
     border: solid black 1px;
 }
 input[type="submit"]{

@@ -1,7 +1,7 @@
 export default function Upgrade() {
     return (
     <>
-    <div id="upgrade">
+    <div id="clicker">
         <span><img src="/wallet.svg"></img>Bitcoin : 0.000021</span>
         <div>
             <h2>Mining</h2>

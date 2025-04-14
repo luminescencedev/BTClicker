@@ -6,6 +6,7 @@ const Terminal = ({ setActiveComponent }) => {
     const [history, setHistory] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
     const [historyIndex, setHistoryIndex] = useState(-1); 
+    const [suggestionIndex, setSuggestionIndex] = useState(-1);
     const { login, logout, user } = useContext(AuthContext);
     const terminalEndRef = useRef(null);
 
@@ -203,53 +204,75 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 cmd.startsWith(value)
             );
             setSuggestions(filteredCommands);
+            setSuggestionIndex(-1); // Réinitialiser l'index des suggestions
         } else {
             setSuggestions([]);
         }
     };
 
     const handleKeyDown = (e) => {
-    if (e.key === 'Tab' && suggestions.length > 0) {
-        e.preventDefault();
-        setInput(suggestions[0]);
-        setSuggestions([]);
-    } else if (e.key === 'ArrowUp') {
-        // Navigate up in history
-        if (historyIndex + 1 < history.length - 1) {
-            const newIndex = historyIndex + 1;
-            setHistoryIndex(newIndex);
-            const command = history[history.length - 1 - newIndex].command || '';
-            setInput(command);
-
-            // Position the cursor at the end of the input
-            setTimeout(() => {
-                const inputElement = document.querySelector('input[type="text"]');
-                if (inputElement) {
-                    inputElement.setSelectionRange(command.length, command.length);
-                }
-            }, 0);
-        } 
-    } else if (e.key === 'ArrowDown') {
-        // Navigate down in history
-        if (historyIndex > 0) {
-            const newIndex = historyIndex - 1;
-            setHistoryIndex(newIndex);
-            const command = history[history.length - 1 - newIndex].command || '';
-            setInput(command);
-
-            // Position the cursor at the end of the input
-            setTimeout(() => {
-                const inputElement = document.querySelector('input[type="text"]');
-                if (inputElement) {
-                    inputElement.setSelectionRange(command.length, command.length);
-                }
-            }, 0);
+        if (suggestions.length > 0) {
+            if (e.key === 'ArrowUp') {
+                // Naviguer vers le haut dans les suggestions
+                e.preventDefault();
+                setSuggestionIndex((prevIndex) =>
+                    prevIndex > 0 ? prevIndex - 1 : suggestions.length - 1
+                );
+            } else if (e.key === 'ArrowDown') {
+                // Naviguer vers le bas dans les suggestions
+                e.preventDefault();
+                setSuggestionIndex((prevIndex) =>
+                    prevIndex < suggestions.length - 1 ? prevIndex + 1 : 0
+                );
+            } else if (e.key === 'Tab' || e.key === 'Enter') {
+                // Sélectionner la suggestion actuelle ou la première si aucune n'est sélectionnée
+                e.preventDefault();
+                const selectedSuggestion =
+                    suggestionIndex >= 0
+                        ? suggestions[suggestionIndex]
+                        : suggestions[0];
+                setInput(selectedSuggestion);
+                setSuggestions([]);
+            }
         } else {
-            setHistoryIndex(-1);
-            setInput('');
+            if (e.key === 'ArrowUp') {
+                // Naviguer vers le haut dans l'historique
+                if (historyIndex + 1 < history.length - 1) {
+                    const newIndex = historyIndex + 1;
+                    setHistoryIndex(newIndex);
+                    const command = history[history.length - 1 - newIndex].command || '';
+                    setInput(command);
+
+                    // Positionner le curseur à la fin de l'entrée
+                    setTimeout(() => {
+                        const inputElement = document.querySelector('input[type="text"]');
+                        if (inputElement) {
+                            inputElement.setSelectionRange(command.length, command.length);
+                        }
+                    }, 0);
+                }
+            } else if (e.key === 'ArrowDown') {
+                // Naviguer vers le bas dans l'historique
+                if (historyIndex > 0) {
+                    const newIndex = historyIndex - 1;
+                    setHistoryIndex(newIndex);
+                    const command = history[history.length - 1 - newIndex].command || '';
+                    setInput(command);
+
+                    // Positionner le curseur à la fin de l'entrée
+                    setTimeout(() => {
+                        const inputElement = document.querySelector('input[type="text"]');
+                        if (inputElement) {
+                            inputElement.setSelectionRange(command.length, command.length);
+                        }
+                    }, 0);
+                } else {
+                    setHistoryIndex(-1);
+                    setInput('');
+                }
+            }
         }
-    }
-};
+    };
 
     useEffect(() => {
         if (terminalEndRef.current) {
@@ -282,7 +305,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         className="flex-1 bg-black text-white p-2 focus:outline-none"
                         value={input}
                         onChange={handleInputChange}
-                        onKeyDown={handleKeyDown} // Add keydown handler
+                        onKeyDown={handleKeyDown} 
                         placeholder="Enter a command /..."
                     />
                 </div>
@@ -291,7 +314,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         {suggestions.map((suggestion, index) => (
                             <div
                                 key={index}
-                                className="cursor-pointer hover:bg-zinc-900 p-1"
+                                className={`cursor-pointer p-1 ${ index === suggestionIndex ? 'bg-gray-700' : 'hover:bg-zinc-900'}`}
                                 onClick={() => {
                                     setInput(suggestion);
                                     setSuggestions([]);

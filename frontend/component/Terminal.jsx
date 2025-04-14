@@ -147,7 +147,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 <div ref={terminalEndRef} />
             </div>
             <form onSubmit={handleSubmit} className="flex items-center">
-                <span className="text-white mr-1">
+                <span className="text-white mx-2">
                     {user ? `${user.username}>` : '>'}
                 </span>
                 <input

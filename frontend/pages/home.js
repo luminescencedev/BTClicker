@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Terminal from "../component/Terminal";
+import Upgrade from "../component/upgrade";
 
 
 // Composant de recherche de services beauté
@@ -15,7 +16,7 @@ export default function Register() {
           <Terminal/>
         </div>
         <div className="h-[50%] w-full">
-          
+          <Upgrade/>
         </div>
       </main>
     </>

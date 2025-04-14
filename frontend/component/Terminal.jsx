@@ -133,14 +133,6 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
 3. User3 - 800 points</pre>`;
 
                 break;
-            case '/status':
-                if (user) {
-                    output = `<pre>User: ${user.username}
-Balance: 1000 points</pre>`;
-                } else {
-                    output = 'You are not logged in. Please log in to see your status.';
-                }
-                break;
 
             case '/achievements':
                 output = `<pre>Achievements:

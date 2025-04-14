@@ -5,6 +5,7 @@ const Terminal = ({ setActiveComponent }) => {
     const [input, setInput] = useState('');
     const [history, setHistory] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
+    const [historyIndex, setHistoryIndex] = useState(-1); 
     const { login, logout, user } = useContext(AuthContext);
     const terminalEndRef = useRef(null);
 
@@ -160,6 +161,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 break;
 
             case '/clear':
+                setHistoryIndex(-1);
                 setHistory([
             {
                 command: '',
@@ -180,6 +182,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
         }
 
         setHistory([...history, { command, output }]);
+        setHistoryIndex(-1);
     };
 
     const handleSubmit = (e) => {
@@ -206,12 +209,47 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
     };
 
     const handleKeyDown = (e) => {
-        if (e.key === 'Tab' && suggestions.length > 0) {
-            e.preventDefault(); 
-            setInput(suggestions[0]); 
-            setSuggestions([]); 
+    if (e.key === 'Tab' && suggestions.length > 0) {
+        e.preventDefault();
+        setInput(suggestions[0]);
+        setSuggestions([]);
+    } else if (e.key === 'ArrowUp') {
+        // Navigate up in history
+        if (historyIndex + 1 < history.length - 1) {
+            const newIndex = historyIndex + 1;
+            setHistoryIndex(newIndex);
+            const command = history[history.length - 1 - newIndex].command || '';
+            setInput(command);
+
+            // Position the cursor at the end of the input
+            setTimeout(() => {
+                const inputElement = document.querySelector('input[type="text"]');
+                if (inputElement) {
+                    inputElement.setSelectionRange(command.length, command.length);
+                }
+            }, 0);
+        } 
+    } else if (e.key === 'ArrowDown') {
+        // Navigate down in history
+        if (historyIndex > 0) {
+            const newIndex = historyIndex - 1;
+            setHistoryIndex(newIndex);
+            const command = history[history.length - 1 - newIndex].command || '';
+            setInput(command);
+
+            // Position the cursor at the end of the input
+            setTimeout(() => {
+                const inputElement = document.querySelector('input[type="text"]');
+                if (inputElement) {
+                    inputElement.setSelectionRange(command.length, command.length);
+                }
+            }, 0);
+        } else {
+            setHistoryIndex(-1);
+            setInput('');
         }
-    };
+    }
+};
 
     useEffect(() => {
         if (terminalEndRef.current) {
@@ -245,7 +283,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         value={input}
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown} // Add keydown handler
-                        placeholder="Enter a command..."
+                        placeholder="Enter a command /..."
                     />
                 </div>
                 {suggestions.length > 0 && (

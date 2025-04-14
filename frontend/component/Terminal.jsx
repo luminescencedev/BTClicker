@@ -19,6 +19,7 @@ const Terminal = ({ setActiveComponent }) => {
         '/market',
         '/register',
         '/status',
+        '/upgrade',
     ];
 
     useEffect(() => {

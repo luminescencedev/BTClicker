@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Terminal from "../component/Terminal";
 import Clicker from "../component/clicker";
-// import Upgrade from "../component/upgrade";
+import Upgrade from "../component/upgrade";
 
 export default function Home() {
   const [activeComponent, setActiveComponent] = useState(null); 
@@ -16,7 +16,7 @@ export default function Home() {
           {activeComponent === "clicker" ? (
             <Clicker />
           ) : activeComponent === "upgrade" ? (
-            <h1>Upgrade</h1>
+            <Upgrade />
           ) : (
             <>
               {/* Ajoutez d'autres composants ici si nécessaire */}

@@ -7,9 +7,13 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    // Récupérer le token et l'utilisateur depuis localStorage
     const storedToken = localStorage.getItem("token");
-    if (storedToken) {
+    const storedUser = localStorage.getItem("user");
+
+    if (storedToken && storedUser) {
       setToken(storedToken);
+      setUser(JSON.parse(storedUser)); // Convertir l'utilisateur en objet
     }
   }, []);
 
@@ -17,12 +21,14 @@ export const AuthProvider = ({ children }) => {
     setToken(newToken);
     setUser(userData);
     localStorage.setItem("token", newToken);
+    localStorage.setItem("user", JSON.stringify(userData)); // Sauvegarder l'utilisateur
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   return (

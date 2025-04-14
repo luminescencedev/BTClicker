@@ -1,15 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const Terminal = () => {
     const [input, setInput] = useState('');
     const [history, setHistory] = useState([
-        {
-            command: '',
-            output: `<img src="/ascii-text-art.png" alt="Terminal" className="w-full h-auto" />`,
-        }
     ]);
     const [users, setUsers] = useState({});
     const [currentUser, setCurrentUser] = useState(null);
+
+    const terminalEndRef = useRef(null);
+
+    useEffect(() => {
+        
+        setHistory([
+            {
+                command: '',
+                output: `<pre>$$$$$$$\\ $$$$$$$$\\  $$$$$$\\  $$\\       $$$$$$\\  $$$$$$\\  $$\\   $$\\ $$$$$$$$\\ $$$$$$$\\  
+$$  __$$\\\\__$$  __|$$  __$$\\ $$ |      \\_$$  _|$$  __$$\\ $$ | $$  |$$  _____|$$  __$$\\ 
+$$ |  $$ |  $$ |   $$ /  \\__|$$ |        $$ |  $$ /  \\__|$$ |$$  / $$ |      $$ |  $$ |
+$$$$$$$\\ |  $$ |   $$ |      $$ |        $$ |  $$ |      $$$$$  /  $$$$$\\    $$$$$$$  |
+$$  __$$\\   $$ |   $$ |      $$ |        $$ |  $$ |      $$  $$<   $$  __|   $$  __$$< 
+$$ |  $$ |  $$ |   $$ |  $$\\ $$ |        $$ |  $$ |  $$\\ $$ |\\$$\\  $$ |      $$ |  $$ |
+$$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$$\\ $$ |  $$ |
+\\_______/   \\__|    \\______/ \\________|\\______| \\______/ \\__|  \\__|\\________|\\__|  \\__|</pre>`,
+            }
+        ]);
+    }, []);
 
     const handleCommand = (command) => {
         let output = '';
@@ -18,7 +33,7 @@ const Terminal = () => {
         switch (args[0]) {
             case '/register':
                 if (args.length < 3) {
-                    output = 'Usage: /register &lt;username&gt; &lt;password&gt;';
+                    output = 'Usage: /register <username> <password>';
                 } else if (users[args[1]]) {
                     output = `L'utilisateur "${args[1]}" existe déjà.`;
                 } else {
@@ -29,7 +44,7 @@ const Terminal = () => {
 
             case '/login':
                 if (args.length < 3) {
-                    output = 'Usage: /login &lt;username&gt; &lt;password&gt;';
+                    output = 'Usage: /login <username> <password>';
                 } else if (!users[args[1]]) {
                     output = `L'utilisateur "${args[1]}" n'existe pas.`;
                 } else if (users[args[1]] !== args[2]) {
@@ -54,7 +69,19 @@ const Terminal = () => {
                 break;
 
             case '/clear':
-                setHistory([]);
+                setHistory([
+            {
+                command: '',
+                output: `<pre>$$$$$$$\\ $$$$$$$$\\  $$$$$$\\  $$\\       $$$$$$\\  $$$$$$\\  $$\\   $$\\ $$$$$$$$\\ $$$$$$$\\  
+$$  __$$\\\\__$$  __|$$  __$$\\ $$ |      \\_$$  _|$$  __$$\\ $$ | $$  |$$  _____|$$  __$$\\ 
+$$ |  $$ |  $$ |   $$ /  \\__|$$ |        $$ |  $$ /  \\__|$$ |$$  / $$ |      $$ |  $$ |
+$$$$$$$\\ |  $$ |   $$ |      $$ |        $$ |  $$ |      $$$$$  /  $$$$$\\    $$$$$$$  |
+$$  __$$\\   $$ |   $$ |      $$ |        $$ |  $$ |      $$  $$<   $$  __|   $$  __$$< 
+$$ |  $$ |  $$ |   $$ |  $$\\ $$ |        $$ |  $$ |  $$\\ $$ |\\$$\\  $$ |      $$ |  $$ |
+$$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$$\\ $$ |  $$ |
+\\_______/   \\__|    \\______/ \\________|\\______| \\______/ \\__|  \\__|\\________|\\__|  \\__|</pre>`,
+            }
+        ]);
                 return;
 
             case '/exit':
@@ -76,6 +103,13 @@ const Terminal = () => {
         }
     };
 
+    // Scroll to the bottom of the terminal whenever history changes
+    useEffect(() => {
+        if (terminalEndRef.current) {
+            terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [history]);
+
     return (
         <div className="bg-black text-white font-mono p-4 h-full w-full flex flex-col rounded-lg shadow-lg border border-gray-700">
             <div className="flex-1 text-[10px] overflow-y-auto mb-2">
@@ -89,6 +123,8 @@ const Terminal = () => {
                         <p dangerouslySetInnerHTML={{ __html: entry.output }} />
                     </div>
                 ))}
+                {/* Invisible div to ensure scrolling to the bottom */}
+                <div ref={terminalEndRef} />
             </div>
             <form onSubmit={handleSubmit} className="flex items-center">
                 <span className="text-white mr-1">

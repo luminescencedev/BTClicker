@@ -4,11 +4,25 @@ import AuthContext from '../context/AuthContext';
 const Terminal = () => {
     const [input, setInput] = useState('');
     const [history, setHistory] = useState([]);
-    const { login, logout, user } = useContext(AuthContext); // Utilisation du contexte d'authentification
+    const [suggestions, setSuggestions] = useState([]);
+    const { login, logout, user } = useContext(AuthContext);
     const terminalEndRef = useRef(null);
 
+    const commands = [
+        '/achievements',
+        '/clear',
+        '/clicker',
+        '/help',
+        '/leaderboard',
+        '/login',
+        '/logout',
+        '/market',
+        '/register',
+        '/status',
+    ];
+
     useEffect(() => {
-        // Message de bienvenue
+        // Welcome message
         setHistory([
             {
                 command: '',
@@ -19,7 +33,7 @@ $$$$$$$\\ |  $$ |   $$ |      $$ |        $$ |  $$ |      $$$$$  /  $$$$$\\    $
 $$  __$$\\   $$ |   $$ |      $$ |        $$ |  $$ |      $$  $$<   $$  __|   $$  __$$< 
 $$ |  $$ |  $$ |   $$ |  $$\\ $$ |        $$ |  $$ |  $$\\ $$ |\\$$\\  $$ |      $$ |  $$ |
 $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$$\\ $$ |  $$ |
-\\_______/   \\__|    \\______/ \\________|\\______| \\______/ \\__|  \\__|\\________|\\__|  \\__|</pre><br><br>`,
+\\_______/   \\__|    \\______/ \\________|\\______| \\______/ \\__|  \\__|\\________|\\__|  \\__|</pre><br>`,
             }
         ]);
     }, []);
@@ -31,7 +45,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
         switch (args[0]) {
             case '/register':
                 if (args.length < 3) {
-                    output = 'Usage: /register <username> <password>';
+                    output = 'Usage: /register [username] [password]';
                 } else {
                     try {
                         const response = await fetch('http://localhost:3001/register', {
@@ -41,20 +55,20 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         });
 
                         if (response.ok) {
-                            output = `Utilisateur "${args[1]}" enregistré avec succès.`;
+                            output = `User "${args[1]}" successfully registered.`;
                         } else {
                             const errorData = await response.json();
-                            output = `Erreur lors de l'enregistrement : ${errorData.error}`;
+                            output = `Registration error: ${errorData.error}`;
                         }
                     } catch (error) {
-                        output = `Erreur réseau : ${error.message}`;
+                        output = `Network error: ${error.message}`;
                     }
                 }
                 break;
 
             case '/login':
                 if (args.length < 3) {
-                    output = 'Usage: /login <username> <password>';
+                    output = 'Usage: /login [username] [password]';
                 } else {
                     try {
                         const response = await fetch('http://localhost:3001/login', {
@@ -65,29 +79,30 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
 
                         if (response.ok) {
                             const data = await response.json();
-                            login(data.token, { username: args[1] }); // Utilisation du contexte pour gérer la session
-                            output = `Connecté en tant que "${args[1]}".`;
+                            login(data.token, { username: args[1] });
+                            output = `Logged in as "${args[1]}".`;
                         } else {
                             const errorData = await response.json();
-                            output = `Erreur de connexion : ${errorData.error}`;
+                            output = `Login error: ${errorData.error}`;
                         }
                     } catch (error) {
-                        output = `Erreur réseau : ${error.message}`;
+                        output = `Network error: ${error.message}`;
                     }
                 }
                 break;
 
             case '/logout':
                 if (user) {
-                    logout(); // Déconnexion via le contexte
-                    output = `Déconnexion réussie.`;
+                    logout();
+                    output = `Successfully logged out.`;
                 } else {
-                    output = 'Aucun utilisateur connecté.';
+                    output = 'No user is logged in.';
                 }
                 break;
 
             case '/help':
-                output = 'Commandes disponibles: /register, /login, /logout, /help, /clear, /exit';
+                output = `<pre>Available commands:
+${commands.join('\n')}</pre>`;
                 break;
 
             case '/clear':
@@ -101,17 +116,13 @@ $$$$$$$\\ |  $$ |   $$ |      $$ |        $$ |  $$ |      $$$$$  /  $$$$$\\    $
 $$  __$$\\   $$ |   $$ |      $$ |        $$ |  $$ |      $$  $$<   $$  __|   $$  __$$< 
 $$ |  $$ |  $$ |   $$ |  $$\\ $$ |        $$ |  $$ |  $$\\ $$ |\\$$\\  $$ |      $$ |  $$ |
 $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$$\\ $$ |  $$ |
-\\_______/   \\__|    \\______/ \\________|\\______| \\______/ \\__|  \\__|\\________|\\__|  \\__|</pre><br><br>`,
+\\_______/   \\__|    \\______/ \\________|\\______| \\______/ \\__|  \\__|\\________|\\__|  \\__|</pre><br>`,
             }
         ]);
                 return;
 
-            case '/exit':
-                output = 'Fermeture du terminal...';
-                break;
-
             default:
-                output = `Commande inconnue: ${command}`;
+                output = `Unknown command: ${command}. Type /help to see all commands.`;
         }
 
         setHistory([...history, { command, output }]);
@@ -122,7 +133,29 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
         if (input.trim()) {
             handleCommand(input.trim());
             setInput('');
+            setSuggestions([]);
         }
+    };
+
+    const handleInputChange = (e) => {
+        const value = e.target.value;
+        setInput(value);
+
+        if (value.startsWith('/')) {
+            const filteredCommands = commands.filter((cmd) =>
+                cmd.startsWith(value)
+            );
+            setSuggestions(filteredCommands);
+        } else {
+            setSuggestions([]);
+        }
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Tab' && suggestions.length > 0) {
+            e.preventDefault(); 
+            setInput(suggestions[0]); 
+            setSuggestions([]); 
     };
 
     useEffect(() => {
@@ -146,17 +179,36 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 ))}
                 <div ref={terminalEndRef} />
             </div>
-            <form onSubmit={handleSubmit} className="flex items-center">
-                <span className="text-white mx-2">
-                    {user ? `${user.username}>` : '>'}
-                </span>
-                <input
-                    type="text"
-                    className="flex-1 bg-black text-white p-2 focus:outline-none"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Entrez une commande..."
-                />
+            <form onSubmit={handleSubmit} className="flex flex-col">
+                <div className="flex items-center">
+                    <span className="text-white mx-2">
+                        {user ? `${user.username}>` : '>'}
+                    </span>
+                    <input
+                        type="text"
+                        className="flex-1 bg-black text-white p-2 focus:outline-none"
+                        value={input}
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown} // Add keydown handler
+                        placeholder="Enter a command..."
+                    />
+                </div>
+                {suggestions.length > 0 && (
+                    <div className="bg-zinc-950 text-white mt-2 p-2 rounded z-10">
+                        {suggestions.map((suggestion, index) => (
+                            <div
+                                key={index}
+                                className="cursor-pointer hover:bg-zinc-900 p-1"
+                                onClick={() => {
+                                    setInput(suggestion);
+                                    setSuggestions([]);
+                                }}
+                            >
+                                {suggestion}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </form>
         </div>
     );

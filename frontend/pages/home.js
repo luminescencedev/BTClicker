@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Terminal from "../component/Terminal";
 
+
 // Composant de recherche de services beauté
 export default function Register() {
   

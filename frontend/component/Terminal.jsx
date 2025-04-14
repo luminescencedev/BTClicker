@@ -96,6 +96,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 if (user) {
                     logout();
                     output = `Successfully logged out.`;
+                    setActiveComponent("");
                 } else {
                     output = 'No user is logged in.';
                 }

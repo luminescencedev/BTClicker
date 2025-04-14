@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import AuthContext from '../context/AuthContext';
 
 const Terminal = () => {
     const [input, setInput] = useState('');
-    const [history, setHistory] = useState([
-    ]);
-    const [users, setUsers] = useState({});
-    const [currentUser, setCurrentUser] = useState(null);
-
+    const [history, setHistory] = useState([]);
+    const { login, logout, user } = useContext(AuthContext); // Utilisation du contexte d'authentification
     const terminalEndRef = useRef(null);
 
     useEffect(() => {
-        
+        // Message de bienvenue
         setHistory([
             {
                 command: '',
@@ -26,39 +24,63 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
         ]);
     }, []);
 
-    const handleCommand = (command) => {
+    const handleCommand = async (command) => {
         let output = '';
         const args = command.split(' ');
 
         switch (args[0]) {
             case '/register':
                 if (args.length < 3) {
-                    output = 'Usage: /register <username> <password>';
-                } else if (users[args[1]]) {
-                    output = `L'utilisateur "${args[1]}" existe déjà.`;
+                    output = 'Usage: /register username password';
                 } else {
-                    setUsers({ ...users, [args[1]]: args[2] });
-                    output = `Utilisateur "${args[1]}" enregistré avec succès.`;
+                    try {
+                        const response = await fetch('http://localhost:3001/register', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username: args[1], password: args[2] }),
+                        });
+
+                        if (response.ok) {
+                            output = `Utilisateur "${args[1]}" enregistré avec succès.`;
+                        } else {
+                            const errorData = await response.json();
+                            output = `Erreur lors de l'enregistrement : ${errorData.error}`;
+                        }
+                    } catch (error) {
+                        output = `Erreur réseau : ${error.message}`;
+                    }
                 }
                 break;
 
             case '/login':
                 if (args.length < 3) {
                     output = 'Usage: /login <username> <password>';
-                } else if (!users[args[1]]) {
-                    output = `L'utilisateur "${args[1]}" n'existe pas.`;
-                } else if (users[args[1]] !== args[2]) {
-                    output = 'Mot de passe incorrect.';
                 } else {
-                    setCurrentUser(args[1]);
-                    output = `Connecté en tant que "${args[1]}".`;
+                    try {
+                        const response = await fetch('http://localhost:3001/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username: args[1], password: args[2] }),
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            await login(data.token); // Utilisation du contexte pour gérer la session
+                            output = `Connecté en tant que "${args[1]}".`;
+                        } else {
+                            const errorData = await response.json();
+                            output = `Erreur de connexion : ${errorData.error}`;
+                        }
+                    } catch (error) {
+                        output = `Erreur réseau : ${error.message}`;
+                    }
                 }
                 break;
 
             case '/logout':
-                if (currentUser) {
-                    output = `Déconnexion de "${currentUser}".`;
-                    setCurrentUser(null);
+                if (user) {
+                    logout(); // Déconnexion via le contexte
+                    output = `Déconnexion réussie.`;
                 } else {
                     output = 'Aucun utilisateur connecté.';
                 }
@@ -84,10 +106,6 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
         ]);
                 return;
 
-            case '/exit':
-                output = 'Fermeture du terminal...';
-                break;
-
             default:
                 output = `Commande inconnue: ${command}`;
         }
@@ -103,7 +121,6 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
         }
     };
 
-    // Scroll to the bottom of the terminal whenever history changes
     useEffect(() => {
         if (terminalEndRef.current) {
             terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -123,12 +140,11 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         <p dangerouslySetInnerHTML={{ __html: entry.output }} />
                     </div>
                 ))}
-                {/* Invisible div to ensure scrolling to the bottom */}
                 <div ref={terminalEndRef} />
             </div>
             <form onSubmit={handleSubmit} className="flex items-center">
                 <span className="text-white mr-1">
-                    {currentUser ? `${currentUser}>` : '>'}
+                    {user ? `${user.username}>` : '>'}
                 </span>
                 <input
                     type="text"

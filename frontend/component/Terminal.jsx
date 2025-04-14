@@ -117,13 +117,21 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 break;
 
             case '/clicker':
-                setActiveComponent("clicker"); // Activer le composant Clicker
-                output = "Clicker component activated.";
+                if (user) {
+                    setActiveComponent("clicker"); // Activer le composant Clicker
+                    output = `Clicker component activated for user "${user.username}".`;
+                } else {
+                    output = 'No user is logged in. Please log in to activate the Clicker component.';
+                }
                 break;
 
             case '/market':
-                setActiveComponent("market"); // Activer le composant Market
-                output = "Market component activated.";
+                if (user) {
+                    setActiveComponent("market"); // Activer le composant Market
+                    output = `Market component activated for user "${user.username}".`;
+                } else {
+                    output = 'No user is logged in. Please log in to activate the Market component.';
+                }
                 break;
 
             case '/leaderboard':
@@ -142,8 +150,12 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 break;
 
             case '/upgrade':
-                setActiveComponent("upgrade"); // Activer le composant Upgrade
-                output = "Upgrade component activated.";
+                if (user) {
+                    setActiveComponent("upgrade"); // Activer le composant Upgrade
+                    output = `Upgrade component activated for user "${user.username}".`;
+                } else {
+                    output = 'No user is logged in. Please log in to activate the Upgrade component.';
+                }
                 break;
 
             case '/clear':

@@ -19,7 +19,7 @@ $$$$$$$\\ |  $$ |   $$ |      $$ |        $$ |  $$ |      $$$$$  /  $$$$$\\    $
 $$  __$$\\   $$ |   $$ |      $$ |        $$ |  $$ |      $$  $$<   $$  __|   $$  __$$< 
 $$ |  $$ |  $$ |   $$ |  $$\\ $$ |        $$ |  $$ |  $$\\ $$ |\\$$\\  $$ |      $$ |  $$ |
 $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$$\\ $$ |  $$ |
-\\_______/   \\__|    \\______/ \\________|\\______| \\______/ \\__|  \\__|\\________|\\__|  \\__|</pre>`,
+\\_______/   \\__|    \\______/ \\________|\\______| \\______/ \\__|  \\__|\\________|\\__|  \\__|</pre><br><br>`,
             }
         ]);
     }, []);
@@ -31,7 +31,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
         switch (args[0]) {
             case '/register':
                 if (args.length < 3) {
-                    output = 'Usage: /register username password';
+                    output = 'Usage: /register <username> <password>';
                 } else {
                     try {
                         const response = await fetch('http://localhost:3001/register', {
@@ -65,7 +65,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
 
                         if (response.ok) {
                             const data = await response.json();
-                            await login(data.token); // Utilisation du contexte pour gérer la session
+                            login(data.token, { username: args[1] }); // Utilisation du contexte pour gérer la session
                             output = `Connecté en tant que "${args[1]}".`;
                         } else {
                             const errorData = await response.json();
@@ -101,10 +101,14 @@ $$$$$$$\\ |  $$ |   $$ |      $$ |        $$ |  $$ |      $$$$$  /  $$$$$\\    $
 $$  __$$\\   $$ |   $$ |      $$ |        $$ |  $$ |      $$  $$<   $$  __|   $$  __$$< 
 $$ |  $$ |  $$ |   $$ |  $$\\ $$ |        $$ |  $$ |  $$\\ $$ |\\$$\\  $$ |      $$ |  $$ |
 $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$$\\ $$ |  $$ |
-\\_______/   \\__|    \\______/ \\________|\\______| \\______/ \\__|  \\__|\\________|\\__|  \\__|</pre>`,
+\\_______/   \\__|    \\______/ \\________|\\______| \\______/ \\__|  \\__|\\________|\\__|  \\__|</pre><br><br>`,
             }
         ]);
                 return;
+
+            case '/exit':
+                output = 'Fermeture du terminal...';
+                break;
 
             default:
                 output = `Commande inconnue: ${command}`;

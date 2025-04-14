@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import AuthContext from '../context/AuthContext';
 
-const Terminal = () => {
+const Terminal = ({ setActiveComponent }) => {
     const [input, setInput] = useState('');
     const [history, setHistory] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
@@ -102,7 +102,55 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
 
             case '/help':
                 output = `<pre>Available commands:
-${commands.join('\n')}</pre>`;
+/achievements - View your achievements
+/clear - Clear the terminal
+/clicker - Activate the Clicker Tab
+/help - Display this help message
+/leaderboard - View the leaderboard
+/login [username] [password] - Log in with your credentials
+/logout - Log out of your account
+/market - Activate the Market Tab
+/register [username] [password] - Register a new account
+/status - View your current status
+/upgrade - Activate the Upgrade Tab</pre>`;
+                break;
+
+            case '/clicker':
+                setActiveComponent("clicker"); // Activer le composant Clicker
+                output = "Clicker component activated.";
+                break;
+
+            case '/market':
+                setActiveComponent("market"); // Activer le composant Market
+                output = "Market component activated.";
+                break;
+
+            case '/leaderboard':
+                output = `<pre>Leaderboard:
+1. User1 - 1000 points
+2. User2 - 900 points
+3. User3 - 800 points</pre>`;
+
+                break;
+            case '/status':
+                if (user) {
+                    output = `<pre>User: ${user.username}
+Balance: 1000 points</pre>`;
+                } else {
+                    output = 'You are not logged in. Please log in to see your status.';
+                }
+                break;
+
+            case '/achievements':
+                output = `<pre>Achievements:
+1. Achievement 1 - Description of achievement 1
+2. Achievement 2 - Description of achievement 2
+3. Achievement 3 - Description of achievement 3</pre>`;
+                break;
+
+            case '/upgrade':
+                setActiveComponent("upgrade"); // Activer le composant Upgrade
+                output = "Upgrade component activated.";
                 break;
 
             case '/clear':

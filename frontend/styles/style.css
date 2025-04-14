@@ -12,11 +12,14 @@ article{
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    margin-bottom: 2%;
 }
 article button{
     border-radius: 3em;
     border: solid black 1px;
     width: 40%;
+    padding: 1%;
+    align-self: flex-start; 
 }
 article button:hover{
     color: white;
@@ -27,22 +30,23 @@ article button:hover{
 /* //////////////////////////////
 //////////// clicker //////////// 
 ///////////////////////////////// */
-#clicker{
+#clicker,#upgrade{
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
     margin: 0 1%;
 }
-#clicker>span{
+#spanwallet{
     width: 100%;
     display: flex;
     justify-content: end;
 }
-#clicker div{
+#clicker div,#upgrade div{
     width: 25%;
     margin-right: 2%;
     display: flex;
-    flex-wrap: wrap
+    flex-wrap: wrap;
+    align-items: flex-start;
 }
 #clicker div span{
     width: 100%;
@@ -65,4 +69,17 @@ article button:hover{
 input[type="submit"]{
     margin-left: 20%;
     padding: 1% 2%;
+}
+
+/* /////////////////////////////////////
+//////////////// UPGRADE ///////////////
+//////////////////////////////////////// */
+
+#upgrade article{
+    padding: 1% 0;
+
+    align-items: center;
+}
+#upgrade article button{
+    margin-top: 2%;
 }

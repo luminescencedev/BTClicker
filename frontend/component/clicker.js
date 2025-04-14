@@ -1,8 +1,8 @@
-export default function Upgrade() {
+export default function Clicker() {
     return (
     <>
     <div id="clicker">
-        <span><img src="/wallet.svg"></img>Bitcoin : 0.000021</span>
+        <span id="spanwallet"><img src="/wallet.svg"></img>Bitcoin : 0.000021</span>
         <div>
             <h2>Mining</h2>
             <article>
@@ -26,6 +26,10 @@ export default function Upgrade() {
                 <option value="30">30%</option>
                 <option value="40">40%</option>
                 <option value="50">50%</option>
+            </select>
+            <select name="bet" id="bet">
+            <option value="increase">increase</option>
+            <option value="drop">drop</option>
             </select>
             <input type="text" placeholder="Enter your amount : "></input>
             <input type="submit" value="Validate"></input>

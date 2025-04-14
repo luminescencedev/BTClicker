@@ -1,0 +1,47 @@
+footer{
+    background-color: rgb(37, 37, 37);
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5% 20% 0;
+}
+footer h3{
+    color: white;
+}
+
+footer article a:first-of-type{
+    width: 70%;
+    margin-right: 20%;
+}
+footer article a{
+    width: 20%;
+    
+}
+footer article:first-of-type{
+    width: 20%;
+    display: flex;
+    flex-wrap: wrap;
+
+}
+footer article{
+    width: 80%;
+    display: flex;
+    flex-wrap: wrap;
+}
+footer article div{
+    width: 28%;
+    margin: 0 2%;
+}
+footer article h3{
+    font-size: 1.3em;
+}
+footer .grey{
+    border-top: solid rgb(75, 75, 75) 1px;
+    width: 100%;
+    padding: 2% 0;
+    margin-top: 10%;
+    border-bottom: none;
+}
+footer ul li{
+    color: rgb(160, 160, 160);
+    line-height: 1.8em;
+}

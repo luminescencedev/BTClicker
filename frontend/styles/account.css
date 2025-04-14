@@ -1,0 +1,311 @@
+/* Conteneur principal */
+.container-account {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f7f7f7;
+  min-height: 100vh;
+  margin-bottom: 20px;
+}
+
+/* Titre de la page */
+.page-title {
+  font-size: 1.875rem; /* 3xl */
+  font-weight: bold;
+  color: #1f2937; /* Gris foncé */
+  margin-bottom: 1.5rem;
+  margin-top: 10vh;
+}
+
+/* Conteneur principal des sections */
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  width: 80%;
+  background-color: #ffffff; /* Blanc */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre légère */
+  border-radius: 0.5rem; /* Arrondi */
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Section gauche (navigation) */
+.left {
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border-right: 1px solid #d1d5db; /* Gris clair */
+  padding-right: 1rem;
+}
+
+.left h2 {
+  font-size: 1.25rem; /* xl */
+  font-weight: 600;
+  color: #374151; /* Gris moyen */
+  margin-bottom: 1rem;
+}
+
+.left h4 {
+  font-size: 1.125rem; /* lg */
+  font-weight: 500;
+  color: #4b5563; /* Gris foncé */
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+
+.left h4.active {
+  color: black; 
+  font-weight: bold;
+}
+
+.left hr {
+  width: 100%;
+  border: 1px solid #d1d5db; /* Gris clair */
+  margin: 1rem 0;
+}
+
+#logout-submit {
+  background-color: #222222; 
+  color: #ffffff; /* Blanc */
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#logout-submit:hover {
+  background-color: black; /* Rouge foncé */
+}
+
+.left button {
+  background-color: white;
+  color: black; 
+  padding: 0.5rem 1rem;
+  border: 2px solid #000000; /* Gris clair */
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.left button:hover {
+  background-color: black;
+  color: white; 
+}
+
+/* Section droite (contenu) */
+.right {
+  width: 75%;
+  padding-left: 1.5rem;
+}
+
+.box {
+  background-color: #f9fafb; /* Gris très clair */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre légère */
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  
+}
+
+.box h2 {
+  font-size: 1.5rem; /* 2xl */
+  font-weight: 600;
+  color: #1f2937; /* Gris foncé */
+  margin-bottom: 1rem;
+}
+
+.box p {
+  color: #4b5563; /* Gris moyen */
+  font-size: 1rem; /* Base */
+}
+
+/* Formulaires */
+.box form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  color: #374151; /* Gris moyen */
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  border: 1px solid #d1d5db; /* Gris clair */
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  font-size: 1rem; /* Base */
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.618); /* Anneau bleu clair */
+}
+
+.form-group textarea {
+  resize: none;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.button-group button {
+  background-color: white; /* Gris clair */
+  color: black; /* Gris moyen */
+  padding: 0.5rem 1rem;
+  border: 2px solid black; /* Gris clair */
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button-group button:hover {
+  background-color: black;
+  color: white; /* Blanc */
+}
+
+#save-submit {
+  background-color: #222222;
+  color: #ffffff; /* Blanc */
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#save-submit:hover {
+  background-color: black; /* Bleu foncé */
+}
+
+#rdv-submit {
+  background-color: white; 
+  color: black; /* Blanc */
+  padding: 0.5rem 1rem;
+  border: 2px solid #000000; 
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#rdv-submit:hover {
+  background-color: black;
+  color: white;
+}
+
+#salon-submit {
+  background-color: #222222; /* Bleu */
+  color: #ffffff; /* Blanc */
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#salon-submit:hover {
+  background-color: black; /* Bleu foncé */
+}
+
+/* Messages */
+.message {
+  background-color: #fef3c7; /* Jaune clair */
+  color: #92400e; /* Jaune foncé */
+  border: 1px solid #fcd34d; /* Jaune */
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-panel{
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.admin-nav{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.admin-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  color: #333;
+}
+
+.admin-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.admin-table tr:hover {
+  background-color: #e9ecef;
+}
+
+.admin-table td button.delete-btn {
+  padding: 8px 16px;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.admin-table td button.delete-btn:hover {
+  background-color: #ff1a1a;
+}
+
+.admin-table td button.delete-btn:focus {
+  outline: none;
+}
+
+.admin-table td button.delete-btn:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .admin-table {
+    font-size: 14px;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 8px;
+  }
+}

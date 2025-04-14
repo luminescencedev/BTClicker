@@ -2,7 +2,24 @@ import React, { useState } from 'react';
 
 const Terminal = () => {
     const [input, setInput] = useState('');
-    const [history, setHistory] = useState([]);
+    const [history, setHistory] = useState([
+        {
+            command: '',
+            output: `
+____________________________________________________________________________________________ <br>
+$$$$$$$\   $$$$$$$$\    $$$$$$\    $$\       $$$$$$\  $$$$$$\  $$\   $$\ $$$$$$$$\   $$$$$$$\  <br>
+$$  __$$\  \__$$  __|  $$  __$$\   $$ |      \_$$  _|$$  __$$\ $$ | $$  |$$  _____|  $$  __$$\ <br>
+$$ |  $$ |    $$ |     $$ /  \__|  $$ |        $$ |  $$ /  \__|$$ |$$  / $$ |        $$ |  $$ |<br>
+$$$$$$$\ |    $$ |     $$ |        $$ |        $$ |  $$ |      $$$$$  /  $$$$$\      $$$$$$$  |<br>
+$$  __$$\     $$ |     $$ |        $$ |        $$ |  $$ |      $$  $$<   $$  __|     $$  __$$< <br>
+$$ |  $$ |    $$ |     $$ |  $$\   $$ |        $$ |  $$ |  $$\ $$ |\$$\  $$ |        $$ |  $$ |<br>
+$$$$$$$  |    $$ |     \$$$$$$  |  $$$$$$$$\ $$$$$$\ \$$$$$$  |$$ | \$$\ $$$$$$$$\   $$ |  $$ |<br>
+\_______/     \__|      \______/   \________|\______| \______/ \__|  \__|\________|  \__|  \__|<br>
+                                                                                        <br>
+                                                                                        <br>
+            `
+        }
+    ]);
     const [users, setUsers] = useState({});
     const [currentUser, setCurrentUser] = useState(null);
 
@@ -13,7 +30,7 @@ const Terminal = () => {
         switch (args[0]) {
             case '/register':
                 if (args.length < 3) {
-                    output = 'Usage: /register <username> <password>';
+                    output = 'Usage: /register &lt;username&gt; &lt;password&gt;';
                 } else if (users[args[1]]) {
                     output = `L'utilisateur "${args[1]}" existe déjà.`;
                 } else {
@@ -24,7 +41,7 @@ const Terminal = () => {
 
             case '/login':
                 if (args.length < 3) {
-                    output = 'Usage: /login <username> <password>';
+                    output = 'Usage: /login &lt;username&gt; &lt;password&gt;';
                 } else if (!users[args[1]]) {
                     output = `L'utilisateur "${args[1]}" n'existe pas.`;
                 } else if (users[args[1]] !== args[2]) {
@@ -76,10 +93,12 @@ const Terminal = () => {
             <div className="flex-1 text-[10px] overflow-y-auto mb-2">
                 {history.map((entry, index) => (
                     <div key={index}>
-                        <p>
-                            <span className="text-white">&gt; {entry.command}</span>
-                        </p>
-                        <p>{entry.output}</p>
+                        {entry.command && (
+                            <p>
+                                <span className="text-white">&gt; {entry.command}</span>
+                            </p>
+                        )}
+                        <p dangerouslySetInnerHTML={{ __html: entry.output }} />
                     </div>
                 ))}
             </div>

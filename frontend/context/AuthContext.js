@@ -10,34 +10,13 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem("token");
     if (storedToken) {
       setToken(storedToken);
-      fetchUserData(storedToken);
     }
   }, []);
 
-  const fetchUserData = async (currentToken) => {
-    try {
-      const response = await fetch("http://localhost:3001/account", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${currentToken}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) throw new Error("Failed to fetch user data");
-
-      const userData = await response.json();
-      setUser(userData);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      logout();
-    }
-  };
-
-  const login = async (newToken) => {
+  const login = (newToken, userData) => {
     setToken(newToken);
+    setUser(userData);
     localStorage.setItem("token", newToken);
-    await fetchUserData(newToken);
   };
 
   const logout = () => {

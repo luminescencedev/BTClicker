@@ -1,4 +1,68 @@
 
-body{
 
+
+
+h2{
+    font-weight: bold;
+    width: 100%;
+    margin-bottom: 5%;
+}
+article{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+article button{
+    border-radius: 3em;
+    border: solid black 1px;
+    width: 40%;
+}
+article button:hover{
+    color: white;
+    background-color: rgb(59, 59, 59);
+    transition: .2s;
+    border: solid rgb(181, 181, 181) 2px;
+}
+/* //////////////////////////////
+//////////// UPGRADE //////////// 
+///////////////////////////////// */
+#upgrade{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin: 0 1%;
+}
+#upgrade>span{
+    width: 100%;
+    display: flex;
+    justify-content: end;
+}
+#upgrade div{
+    width: 25%;
+    margin-right: 2%;
+    display: flex;
+    flex-wrap: wrap
+}
+#upgrade div span{
+    width: 100%;
+    margin-bottom: 5%;
+}
+#upgrade form{
+
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+#upgrade select{
+    border: solid black 1px;
+    border-radius: .2em;
+    margin-right: 2%;
+}
+#upgrade input{
+    border: solid black 1px;
+}
+input[type="submit"]{
+    margin-left: 20%;
+    padding: 1% 2%;
 }

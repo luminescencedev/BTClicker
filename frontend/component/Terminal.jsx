@@ -156,6 +156,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
             e.preventDefault(); 
             setInput(suggestions[0]); 
             setSuggestions([]); 
+        }
     };
 
     useEffect(() => {

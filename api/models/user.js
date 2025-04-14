@@ -12,32 +12,103 @@ const pool = new Pool({
 
 class User {
   static async createUser({
-    role,
-    first_name,
-    last_name,
-    age,
-    mail,
-    phone,
-    city,
+    username,
     password,
   }) {
-    const created_at = new Date();
-    const updated_at = new Date();
+    const progression = {
+        "upgrades":
+        [
+            {
+                "id": 1,
+                "name": "CPU",
+                "description": "Increase the bot mining frequency ",
+                "level": 1
+            },
+            {
+                "id": 2,
+                "name": "Ram",
+                "description": "Increase the bot mining power",
+                "level": 1
+            },
+            {
+                "id": 3,
+                "name": "Cooling",
+                "description": "Increase the bot power multiplier",
+                "level": 1
+            },
+            {
+                "id": 4,
+                "name": "Motherboard",
+                "description": "Increase the player mining power ",
+                "level": 1
+            },
+            {
+                "id": 5,
+                "name": "Graphics Card",
+                "description": "Increase the player mining multiplier",
+                "level": 1
+            },
+            {
+                "id": 7,
+                "name":"Market Control",
+                "description": "Increases the percentage the player can bet on the market",
+                "level": 1
+            },
+            {
+                "id": 8,
+                "name": "Loan Shark",
+                "description": "Decreases the cooldown between market bets",
+                "level": 1
+            },
+            {
+                "id": 9,
+                "name": "Bot Farm",
+                "description": "Increase the number of bots",
+                "level": 1
+            }
+        ],
+        "wallet":
+        {
+            "balance": 1000
+        },
+        "achievements":
+        [
+            {
+                "id": 1,
+                "name": "Achievement 1",
+                "description": "This is the first achievement."
+                
+            },
+            {
+                "id": 2,
+                "name": "Achievement 2",
+                "description": "This is the second achievement."
+                
+            },
+            {
+                "id": 3,
+                "name": "Achievement 3",
+                "description": "This is the third achievement."
+                
+            }
+        ],
+        "market":
+        {
+            "trend":"up",
+            "steps": 5
+            
+        }
+    
+    
+    };
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      `INSERT INTO users (role, first_name, last_name, age, mail, phone, city, password, created_at, updated_at) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+      `INSERT INTO users (username, password, progression) 
+       VALUES ($1, $2, $3::jsonb) RETURNING *`,
       [
-        role,
-        first_name,
-        last_name,
-        age,
-        mail,
-        phone,
-        city,
+        username,
         hashedPassword,
-        created_at,
-        updated_at,
+        JSON.stringify(progression),
       ]
     );
     return result.rows[0];
@@ -47,25 +118,14 @@ class User {
   static async getAllUsers(req, res) {
     try {
       const result = await pool.query(`
-      SELECT 
-        id_user,
-        role,
-        first_name,
-        last_name,
-        age,
-        mail,
-        phone,
-        city,
-        created_at,
-        updated_at
+      SELECT *
       FROM users
-      ORDER BY created_at DESC
     `);
 
       res.json(result.rows);
     } catch (error) {
       console.error("Error fetching users:", error);
-      res.status(500).json({ message: "Apprends a écrire ptn" });
+      res.status(500).json({ message: "Error" });
     }
   }
 
@@ -73,64 +133,38 @@ class User {
   static async getUserById(id_user) {
     try {
       const result = await pool.query(
-        `SELECT id_user, first_name, last_name, age, mail, phone, city, role 
+        `SELECT *
          FROM users WHERE id_user = $1`,
         [id_user]
       );
       return result.rows[0] || null;
     } catch (err) {
       console.error("Database query error:", err);
-      throw err; // This will trigger the 500 error response
+      throw err;
     }
   }
-
-  static async getUserByMail(mail) {
-    const result = await pool.query("SELECT * FROM Users WHERE mail = $1", [
-      mail,
-    ]);
-    return result.rows[0];
-  }
-
   
-
-  static async patchUserLastName(id, { last_name }) {
-    const result = await pool.query(
-      "UPDATE Users SET last_name = $1 WHERE id_user = $2 RETURNING *",
-      [last_name, id]
-    );
-    return result.rows[0];
+  static async getUserByUsername(username) {
+    try {
+      const result = await pool.query(
+        `SELECT *
+         FROM users WHERE username = $1`,
+        [username]
+      );
+      return result.rows[0] || null;
+    } catch (err) {
+      console.error("Database query error:", err);
+      throw err;
+    }
   }
-
-  static async patchUserFirstName(id, { first_name }) {
-    const result = await pool.query(
-      "UPDATE Users SET first_name = $1 WHERE id_user = $2 RETURNING *",
-      [first_name, id]
-    );
-    return result.rows[0];
-  }
-
-  static async patchUserMail(id, { mail }) {
-    const result = await pool.query(
-      "UPDATE Users SET mail = $1 WHERE id_user = $2 RETURNING *",
-      [mail, id]
-    );
-    return result.rows[0];
-  }
-
-  static async patchUserPhone(id, { phone }) {
-    const result = await pool.query(
-      "UPDATE Users SET phone = $1 WHERE id_user = $2 RETURNING *",
-      [phone, id]
-    );
-    return result.rows[0];
-  }
+  
 
   // In your user controller
   static async deleteUser(id_user, currentUserId) {
     try {
       // 1. Check if user exists
       const userCheck = await pool.query(
-        "SELECT id_user, role FROM Users WHERE id_user = $1",
+        "SELECT id_user FROM Users WHERE id_user = $1",
         [id_user]
       );
 
@@ -138,7 +172,6 @@ class User {
         return { success: false, status: 404, message: "User not found" };
       }
 
-      // 2. Prevent self-deletion
       if (currentUserId === parseInt(id_user)) {
         return {
           success: false,
@@ -147,21 +180,6 @@ class User {
         };
       }
 
-      // 3. Check for salon ownership
-      const salonCheck = await pool.query(
-        "SELECT id_salon FROM Users WHERE id_user = $1 AND id_salon IS NOT NULL",
-        [id_user]
-      );
-
-      if (salonCheck.rows.length > 0) {
-        return {
-          success: false,
-          status: 400,
-          message: "User owns a salon. Transfer salon ownership first.",
-        };
-      }
-
-      // 4. Delete user
       await pool.query("DELETE FROM Users WHERE id_user = $1", [id_user]);
 
       return {
@@ -172,7 +190,6 @@ class User {
     } catch (error) {
       console.error("Delete user error:", error);
 
-      // Handle foreign key constraints
       if (error.code === "23503") {
         return {
           success: false,

@@ -1,24 +1,29 @@
 import { useState } from "react";
-import { useRouter } from "next/router";
 import Terminal from "../component/Terminal";
 import Clicker from "../component/clicker";
+import Upgrade from "../component/upgrade";
 
+export default function Home() {
+  const [activeComponent, setActiveComponent] = useState(null); 
 
-// Composant de recherche de services beauté
-export default function Register() {
-  
-  const router = useRouter();
-  
   return (
     <> 
       <main className="homePage h-screen w-screen">
         <div className="h-[50%] w-full p-1">
-          <Terminal/>
+          <Terminal setActiveComponent={setActiveComponent} /> 
         </div>
         <div className="h-[50%] w-full">
-          <Clicker/>
+          {activeComponent === "clicker" ? (
+            <Clicker />
+          ) : activeComponent === "upgrade" ? (
+            <Upgrade />
+          ) : (
+            <>
+              {/* Ajoutez d'autres composants ici si nécessaire */}
+            </>
+          )}
         </div>
       </main>
     </>
-    );
-  }
+  );
+}

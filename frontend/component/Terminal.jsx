@@ -314,7 +314,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         {suggestions.map((suggestion, index) => (
                             <div
                                 key={index}
-                                className={`cursor-pointer p-1 ${ index === suggestionIndex ? 'bg-gray-700' : 'hover:bg-zinc-900'}`}
+                                className={`cursor-pointer p-1 ${ index === suggestionIndex ? 'bg-zinc-900 rounded-sm' : 'hover:bg-zinc-900'}`}
                                 onClick={() => {
                                     setInput(suggestion);
                                     setSuggestions([]);

@@ -133,7 +133,7 @@ class User {
   static async getProgressionByUsername(username) {
     try {
       const result = await pool.query(
-        "SELECT progression FROM users WHERE username = $1",
+        "SELECT progression FROM users WHERE username = '$1'",
         [username]
       );
   

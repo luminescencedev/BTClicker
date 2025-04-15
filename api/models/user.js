@@ -194,6 +194,28 @@ class User {
     }
   }
 
+  static async getAllUsersWithBalances() {
+    try {
+      const result = await pool.query(`
+        SELECT username, progression->'wallet'->>'balance' AS balance
+        FROM users
+      `);
+
+      const users = result.rows.map((row) => ({
+        username: row.username,
+        balance: parseFloat(row.balance) || 0, // Convertir la balance en nombre
+      }));
+
+      // Trier les utilisateurs par balance décroissante
+      users.sort((a, b) => b.balance - a.balance);
+
+      return users;
+    } catch (err) {
+      console.error("DB error in getAllUsersWithBalances:", err);
+      throw err;
+    }
+  }
+
   // In models/user.js - keep your existing queries but ensure they return id_user
   static async getUserById(id_user) {
     try {

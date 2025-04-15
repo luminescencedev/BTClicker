@@ -60,6 +60,16 @@ app.get("/status/:username", async (req, res) => {
   }
 });
 
+app.get("/leaderboard", async (req, res) => {
+  try {
+    const users = await User.getAllUsersWithBalances(); // Appeler la méthode du modèle
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching leaderboard:", error);
+    res.status(500).json({ error: "Unexpected server error" });
+  }
+});
+
 
 
 //POST LOGIN / REGISTER

@@ -83,6 +83,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         if (response.ok) {
                             const data = await response.json();
                             login(data.token, { username: args[1] });
+                            console.log(data.token);
                             output = `Logged in as "${args[1]}".`;
                         } else {
                             const errorData = await response.json();
@@ -161,6 +162,47 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 }
                 break;
 
+                case '/status':
+                    const token = localStorage.getItem('token');
+                    console.log("Username:", user.username);
+                
+                    if (token) {
+                        try {
+                            const response = await fetch(`http://localhost:3001/wallet?username=${user.username}`, {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+                
+                            const raw = await response.text(); // Lire brut pour éviter les erreurs de parsing
+                            console.log("Raw response:", raw);
+                
+                            if (response.ok) {
+                                let data;
+                                try {
+                                    data = JSON.parse(raw);
+                                } catch (parseErr) {
+                                    output = `Server sent invalid JSON.`;
+                                    break;
+                                }
+                
+                                output = `<pre>You are now connected on ${user.username} account.
+                Your balance is: ${data.wallet?.balance ?? 'Unknown'} BTC</pre>`;
+                            } else {
+                                output = `Error fetching wallet: HTTP ${response.status}`;
+                            }
+                        } catch (error) {
+                            output = `Network error: ${error.message}`;
+                        }
+                    } else {
+                        output = 'No user is logged in. Please log in to view your status.';
+                    }
+                    break;
+                
+
+                
             case '/clear':
                 setHistoryIndex(-1);
                 setHistory([

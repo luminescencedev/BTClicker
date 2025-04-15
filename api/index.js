@@ -45,27 +45,16 @@ const authenticate = (req, res, next) => {
 };
 
 
-
-//GET USERS
-app.get("/account", authenticate, async (req, res) => {
+app.get("/wallet", authenticate, async (req, res) => {
+  const username = req.query.username;
+  console.log("Username from query:", username);
   try {
-    const user = await User.getUserById(req.user.id);
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    res.json({
-      id: user.id_user,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.mail,
-      phone: user.phone,
-      city: user.city,
-      role: user.role,
-    });
+    const result = await User.getProgressionByUsername(username);
+    res.status(result.status).json(result.wallet);
   } catch (error) {
-    console.error("Account endpoint error:", error);
+    console.error(`Route error fetching wallet for user ${username}:`, error);
     res.status(500).json({
-      error: "Internal server error",
-      ...(process.env.NODE_ENV === "development" && { details: error.message }),
+      error: "Unexpected server error",
     });
   }
 });

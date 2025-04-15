@@ -114,6 +114,73 @@ class User {
     return result.rows[0];
   }
 
+  static async getId(username) {
+    try {
+      const result = await pool.query(
+        `SELECT id_user FROM users WHERE username = $1`,
+        [username]
+      );
+      if (result.rows.length === 0) {
+        return null; // User not found
+      }
+      return result.rows[0].id_user; // Return the user ID
+    } catch (err) {
+      console.error("Database query error:", err);
+      throw err;
+    }
+  }
+
+  static async getProgressionByUsername(username) {
+    try {
+      const result = await pool.query(
+        "SELECT progression FROM users WHERE username = $1",
+        [username]
+      );
+  
+      const rows = result.rows;
+  
+      if (rows.length === 0) {
+        return {
+          status: 404,
+          progression: { error: "User not found or progression missing" },
+        };
+      }
+  
+      return {
+        status: 200,
+        progression: rows[0].progression,
+      };
+    } catch (err) {
+      console.error("DB error in getProgressionByUsername:", err);
+      throw err;
+    }
+  }
+  
+  
+  
+  static async getWallet(userId) {
+    try {
+      const [rows] = await db.query("SELECT progression -> wallet -> balance FROM users WHERE user_id = ?", [userId]);
+      
+      if (rows.length === 0) {
+        return {
+          status: 404,
+          wallet: { error: "Wallet not found" },
+        };
+      }
+
+      return {
+        status: 200,
+        wallet: {
+          balance: rows[0].balance,
+        },
+      };
+    } catch (err) {
+      console.error("DB error in getWallet:", err);
+      throw err;
+    }
+  }
+
   // In your user controller
   static async getAllUsers(req, res) {
     try {
@@ -147,8 +214,7 @@ class User {
   static async getUserByUsername(username) {
     try {
       const result = await pool.query(
-        `SELECT *
-         FROM users WHERE username = $1`,
+        `SELECT * FROM users WHERE username = $1`,
         [username]
       );
       return result.rows[0] || null;

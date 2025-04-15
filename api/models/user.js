@@ -136,19 +136,17 @@ class User {
         "SELECT progression FROM users WHERE username = $1",
         [username]
       );
-  
-      const rows = result.rows;
-  
-      if (rows.length === 0) {
+
+      if (result.rows.length === 0) {
         return {
           status: 404,
           progression: { error: "User not found or progression missing" },
         };
       }
-  
+
       return {
         status: 200,
-        progression: rows[0].progression,
+        progression: result.rows[0].progression,
       };
     } catch (err) {
       console.error("DB error in getProgressionByUsername:", err);

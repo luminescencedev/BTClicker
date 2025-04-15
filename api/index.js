@@ -45,12 +45,15 @@ const authenticate = (req, res, next) => {
 };
 
 
-app.get("/wallet", authenticate, async (req, res) => {
-  const username = req.query.username;
-  console.log("Username from query:", username);
+app.get("/wallet/:username", async (req, res) => {
+  const username = req.params.username; // Récupérer le username depuis les paramètres
   try {
-    const result = await User.getProgressionByUsername(username);
-    res.status(result.status).json(result.wallet);
+    const result = await User.getProgressionByUsername(username); // Appeler la méthode du modèle
+    if (result.status === 404) {
+      return res.status(404).json(result.progression);
+    }
+    console.log("Progression récupérée :", result.progression);
+    res.status(200).json(result.progression.wallet); // Retourner uniquement le wallet
   } catch (error) {
     console.error(`Route error fetching wallet for user ${username}:`, error);
     res.status(500).json({

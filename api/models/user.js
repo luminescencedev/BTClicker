@@ -146,7 +146,7 @@ class User {
 
       return {
         status: 200,
-        progression: result.rows[0].progression,
+        progression: result.rows[0].progression, // Retourner toutes les données de progression
       };
     } catch (err) {
       console.error("DB error in getProgressionByUsername:", err);

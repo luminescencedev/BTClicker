@@ -7,3 +7,17 @@ html, body {
     overflow-x: hidden;
   }
   
+.terminal ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.terminal ::-webkit-scrollbar-thumb {
+    background-color: #1a1a1a;
+    border-radius: 4px;
+}
+
+.terminal ::-webkit-scrollbar-track {
+    background-color: black;
+    border-radius: 4px;
+}

@@ -44,29 +44,29 @@ const authenticate = (req, res, next) => {
   }
 };
 
-
-
-//GET USERS
-app.get("/account", authenticate, async (req, res) => {
+app.get("/status/:username", async (req, res) => {
+  const username = req.params.username; // Récupérer le username depuis les paramètres
   try {
-    const user = await User.getUserById(req.user.id);
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    res.json({
-      id: user.id_user,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.mail,
-      phone: user.phone,
-      city: user.city,
-      role: user.role,
-    });
+    const result = await User.getProgressionByUsername(username); // Appeler la méthode du modèle
+    if (result.status === 404) {
+      return res.status(404).json(result.progression);
+    }
+    res.status(200).json(result.progression); // Retourner toutes les données de progression
   } catch (error) {
-    console.error("Account endpoint error:", error);
+    console.error(`Route error fetching status for user ${username}:`, error);
     res.status(500).json({
-      error: "Internal server error",
-      ...(process.env.NODE_ENV === "development" && { details: error.message }),
+      error: "Unexpected server error",
     });
+  }
+});
+
+app.get("/leaderboard", async (req, res) => {
+  try {
+    const users = await User.getAllUsersWithBalances(); // Appeler la méthode du modèle
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching leaderboard:", error);
+    res.status(500).json({ error: "Unexpected server error" });
   }
 });
 

@@ -5,6 +5,8 @@ const Terminal = ({ setActiveComponent }) => {
     const [input, setInput] = useState('');
     const [history, setHistory] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
+    const [historyIndex, setHistoryIndex] = useState(-1); 
+    const [suggestionIndex, setSuggestionIndex] = useState(-1);
     const { login, logout, user } = useContext(AuthContext);
     const terminalEndRef = useRef(null);
 
@@ -81,6 +83,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         if (response.ok) {
                             const data = await response.json();
                             login(data.token, { username: args[1] });
+                            console.log(data.token);
                             output = `Logged in as "${args[1]}".`;
                         } else {
                             const errorData = await response.json();
@@ -96,6 +99,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 if (user) {
                     logout();
                     output = `Successfully logged out.`;
+                    setActiveComponent("");
                 } else {
                     output = 'No user is logged in.';
                 }
@@ -117,21 +121,42 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 break;
 
             case '/clicker':
-                setActiveComponent("clicker"); // Activer le composant Clicker
-                output = "Clicker component activated.";
+                if (user) {
+                    setActiveComponent("clicker"); // Activer le composant Clicker
+                    output = `Clicker component activated for user "${user.username}".`;
+                } else {
+                    output = 'No user is logged in. Please log in to activate the Clicker component.';
+                }
                 break;
 
             case '/market':
-                setActiveComponent("market"); // Activer le composant Market
-                output = "Market component activated.";
+                if (user) {
+                    setActiveComponent("market"); // Activer le composant Market
+                    output = `Market component activated for user "${user.username}".`;
+                } else {
+                    output = 'No user is logged in. Please log in to activate the Market component.';
+                }
                 break;
 
             case '/leaderboard':
-                output = `<pre>Leaderboard:
-1. User1 - 1000 points
-2. User2 - 900 points
-3. User3 - 800 points</pre>`;
+                try {
+                    const response = await fetch('http://localhost:3001/leaderboard', {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
 
+                    if (response.ok) {
+                        const users = await response.json();
+                        output = `<pre>Leaderboard:\n${users
+                            .map((user, index) => `${index + 1}. ${user.username} - ${user.balance} BTC`)
+                            .join('\n')}</pre>`;
+                    } else {
+                        const errorData = await response.json();
+                        output = `Error fetching leaderboard: ${errorData.error}`;
+                    }
+                } catch (error) {
+                    output = `Network error: ${error.message}`;
+                }
                 break;
 
             case '/achievements':
@@ -142,11 +167,62 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 break;
 
             case '/upgrade':
-                setActiveComponent("upgrade"); // Activer le composant Upgrade
-                output = "Upgrade component activated.";
+                if (user) {
+                    setActiveComponent("upgrade"); // Activer le composant Upgrade
+                    output = `Upgrade component activated for user "${user.username}".`;
+                } else {
+                    output = 'No user is logged in. Please log in to activate the Upgrade component.';
+                }
                 break;
 
+                case '/status':
+                    if (user) {
+                        try {
+                            const response = await fetch(`http://localhost:3001/status/${user.username}`, {
+                                method: 'GET',
+                                headers: { 'Content-Type': 'application/json' },
+                            });
+
+                            if (response.ok) {
+                                const progression = await response.json();
+
+                                // Formater les données pour un affichage clair
+                                const market = progression.market || {};
+                                const wallet = progression.wallet || {};
+                                const achievements = progression.achievements || [];
+                                const upgrades = progression.upgrades || [];
+
+                                output = `<pre>Status for user "${user.username}":
+
+                Market:
+Trend: ${market.trend || 'N/A'}
+Steps: ${market.steps || 0}
+
+                Wallet:
+Balance: ${wallet.balance || 0} BTC
+
+                Achievements:
+${achievements.map((ach, index) => `  ${index + 1}. ${ach.name} - ${ach.description}`).join('\n')}
+
+                Upgrades:
+${upgrades.map((upg) => `  ${upg.name}: Level ${upg.level}`).join('\n')}
+                </pre>`;
+                            } else {
+                                const errorData = await response.json();
+                                output = `Error fetching status: ${errorData.error}`;
+                            }
+                        } catch (error) {
+                            output = `Network error: ${error.message}`;
+                        }
+                    } else {
+                        output = 'No user is logged in. Please log in to view your status.';
+                    }
+                    break;
+                
+
+                
             case '/clear':
+                setHistoryIndex(-1);
                 setHistory([
             {
                 command: '',
@@ -167,6 +243,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
         }
 
         setHistory([...history, { command, output }]);
+        setHistoryIndex(-1);
     };
 
     const handleSubmit = (e) => {
@@ -187,16 +264,73 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 cmd.startsWith(value)
             );
             setSuggestions(filteredCommands);
+            setSuggestionIndex(-1); // Réinitialiser l'index des suggestions
         } else {
             setSuggestions([]);
         }
     };
 
     const handleKeyDown = (e) => {
-        if (e.key === 'Tab' && suggestions.length > 0) {
-            e.preventDefault(); 
-            setInput(suggestions[0]); 
-            setSuggestions([]); 
+        if (suggestions.length > 0) {
+            if (e.key === 'ArrowUp') {
+                // Naviguer vers le haut dans les suggestions
+                e.preventDefault();
+                setSuggestionIndex((prevIndex) =>
+                    prevIndex > 0 ? prevIndex - 1 : suggestions.length - 1
+                );
+            } else if (e.key === 'ArrowDown') {
+                // Naviguer vers le bas dans les suggestions
+                e.preventDefault();
+                setSuggestionIndex((prevIndex) =>
+                    prevIndex < suggestions.length - 1 ? prevIndex + 1 : 0
+                );
+            } else if (e.key === 'Tab' || e.key === 'Enter') {
+                // Sélectionner la suggestion actuelle ou la première si aucune n'est sélectionnée
+                e.preventDefault();
+                const selectedSuggestion =
+                    suggestionIndex >= 0
+                        ? suggestions[suggestionIndex]
+                        : suggestions[0];
+                setInput(selectedSuggestion);
+                setSuggestions([]);
+            }
+        } else {
+            if (e.key === 'ArrowUp') {
+                // Naviguer vers le haut dans l'historique
+                if (historyIndex + 1 < history.length - 1) {
+                    const newIndex = historyIndex + 1;
+                    setHistoryIndex(newIndex);
+                    const command = history[history.length - 1 - newIndex].command || '';
+                    setInput(command);
+
+                    // Positionner le curseur à la fin de l'entrée
+                    setTimeout(() => {
+                        const inputElement = document.querySelector('input[type="text"]');
+                        if (inputElement) {
+                            inputElement.setSelectionRange(command.length, command.length);
+                        }
+                    }, 0);
+                }
+            } else if (e.key === 'ArrowDown') {
+                // Naviguer vers le bas dans l'historique
+                if (historyIndex > 0) {
+                    const newIndex = historyIndex - 1;
+                    setHistoryIndex(newIndex);
+                    const command = history[history.length - 1 - newIndex].command || '';
+                    setInput(command);
+
+                    // Positionner le curseur à la fin de l'entrée
+                    setTimeout(() => {
+                        const inputElement = document.querySelector('input[type="text"]');
+                        if (inputElement) {
+                            inputElement.setSelectionRange(command.length, command.length);
+                        }
+                    }, 0);
+                } else {
+                    setHistoryIndex(-1);
+                    setInput('');
+                }
+            }
         }
     };
 
@@ -207,7 +341,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
     }, [history]);
 
     return (
-        <div className="bg-black text-white font-mono p-4 h-full w-full flex flex-col rounded-lg shadow-lg border border-gray-700">
+        <div className="bg-black text-white font-mono p-4 h-full w-full flex flex-col rounded-lg shadow-lg border border-gray-700 terminal">
             <div className="flex-1 text-[10px] overflow-y-auto mb-2">
                 {history.map((entry, index) => (
                     <div key={index}>
@@ -231,8 +365,8 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         className="flex-1 bg-black text-white p-2 focus:outline-none"
                         value={input}
                         onChange={handleInputChange}
-                        onKeyDown={handleKeyDown} // Add keydown handler
-                        placeholder="Enter a command..."
+                        onKeyDown={handleKeyDown} 
+                        placeholder="Enter a command /..."
                     />
                 </div>
                 {suggestions.length > 0 && (
@@ -240,7 +374,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         {suggestions.map((suggestion, index) => (
                             <div
                                 key={index}
-                                className="cursor-pointer hover:bg-zinc-900 p-1"
+                                className={`cursor-pointer p-1 ${ index === suggestionIndex ? 'bg-zinc-900 rounded-sm' : 'hover:bg-zinc-900'}`}
                                 onClick={() => {
                                     setInput(suggestion);
                                     setSuggestions([]);

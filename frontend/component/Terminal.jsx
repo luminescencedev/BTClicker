@@ -163,35 +163,40 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 break;
 
                 case '/status':
-                    const token = localStorage.getItem('token');
-                    console.log("Username:", user.username);
-                
-                    if (token) {
+                    if (user) {
                         try {
-                            const response = await fetch(`http://localhost:3001/wallet?username=${user.username}`, {
+                            const response = await fetch(`http://localhost:3001/status/${user.username}`, {
                                 method: 'GET',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    Authorization: `Bearer ${token}`,
-                                },
+                                headers: { 'Content-Type': 'application/json' },
                             });
-                
-                            const raw = await response.text(); // Lire brut pour éviter les erreurs de parsing
-                            console.log("Raw response:", raw);
-                
+
                             if (response.ok) {
-                                let data;
-                                try {
-                                    data = JSON.parse(raw);
-                                } catch (parseErr) {
-                                    output = `Server sent invalid JSON.`;
-                                    break;
-                                }
-                
-                                output = `<pre>You are now connected on ${user.username} account.
-                Your balance is: ${data.wallet?.balance ?? 'Unknown'} BTC</pre>`;
+                                const progression = await response.json();
+
+                                // Formater les données pour un affichage clair
+                                const market = progression.market || {};
+                                const wallet = progression.wallet || {};
+                                const achievements = progression.achievements || [];
+                                const upgrades = progression.upgrades || [];
+
+                                output = `<pre>Status for user "${user.username}":
+                                
+                Market:
+Trend: ${market.trend || 'N/A'}
+Steps: ${market.steps || 0}
+
+                Wallet:
+Balance: ${wallet.balance || 0} BTC
+
+                Achievements:
+${achievements.map((ach, index) => `  ${index + 1}. ${ach.name} - ${ach.description}`).join('\n')}
+
+                Upgrades:
+${upgrades.map((upg) => `  ${upg.name}: Level ${upg.level}`).join('\n')}
+                </pre>`;
                             } else {
-                                output = `Error fetching wallet: HTTP ${response.status}`;
+                                const errorData = await response.json();
+                                output = `Error fetching status: ${errorData.error}`;
                             }
                         } catch (error) {
                             output = `Network error: ${error.message}`;

@@ -35,6 +35,7 @@ const authenticate = (req, res, next) => {
   }
 
   const token = authHeader.split(" ")[1];
+  
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     req.user = decoded;
@@ -70,7 +71,50 @@ app.get("/leaderboard", async (req, res) => {
   }
 });
 
+app.get("/status/:username", async (req, res) => {
+    const username = req.params.username;
+    try {
+        const result = await User.getProgressionByUsername(username);
+        console.log("Progression fetched for user:", username, result); // Log des données
+        if (result.status === 404) {
+            return res.status(404).json(result.progression);
+        }
+        res.status(200).json(result.progression);
+    } catch (error) {
+        console.error(`Error fetching status for user ${username}:`, error);
+        res.status(500).json({ error: "Unexpected server error" });
+    }
+});
 
+app.patch("/progressionClicker", authenticate, async (req, res) => {
+    console.log("Received request to update progression:", req.body); 
+    const username = req.user.username;
+    const { wallet } = req.body;
+
+    try {
+        
+        await User.updateProgression(username, { wallet });
+        res.status(200).json({ message: "Progression updated successfully" });
+    } catch (error) {
+        console.error("Error updating progression:", error); // Log des erreurs
+        res.status(500).json({ error: "Unexpected server error" });
+    }
+});
+
+app.patch("/progressionUpgrade", authenticate, async (req, res) => {
+    console.log("Received request to update progression:", req.body); 
+    const username = req.user.username;
+    const { wallet, upgrades } = req.body;
+
+    try {
+        
+        await User.updateProgression(username, { wallet, upgrades });
+        res.status(200).json({ message: "Progression updated successfully" });
+    } catch (error) {
+        console.error("Error updating progression:", error); // Log des erreurs
+        res.status(500).json({ error: "Unexpected server error" });
+    }
+});
 
 //POST LOGIN / REGISTER
 app.post("/login", async (req, res) => {

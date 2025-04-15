@@ -22,54 +22,54 @@ class User {
                 "id": 1,
                 "name": "CPU",
                 "description": "Increase the bot mining frequency ",
-                "level": 1
+                "level": 0
             },
             {
                 "id": 2,
                 "name": "Ram",
                 "description": "Increase the bot mining power",
-                "level": 1
+                "level": 0
             },
             {
                 "id": 3,
                 "name": "Cooling",
                 "description": "Increase the bot power multiplier",
-                "level": 1
+                "level": 0
             },
             {
                 "id": 4,
                 "name": "Motherboard",
                 "description": "Increase the player mining power ",
-                "level": 1
+                "level": 0
             },
             {
                 "id": 5,
                 "name": "Graphics Card",
                 "description": "Increase the player mining multiplier",
-                "level": 1
+                "level": 0
             },
             {
                 "id": 7,
                 "name":"Market Control",
                 "description": "Increases the percentage the player can bet on the market",
-                "level": 1
+                "level": 0
             },
             {
                 "id": 8,
                 "name": "Loan Shark",
                 "description": "Decreases the cooldown between market bets",
-                "level": 1
+                "level": 0
             },
             {
                 "id": 9,
                 "name": "Bot Farm",
                 "description": "Increase the number of bots",
-                "level": 1
+                "level": 0
             }
         ],
         "wallet":
         {
-            "balance": 1000
+            "balance": 0
         },
         "achievements":
         [
@@ -153,8 +153,28 @@ class User {
       throw err;
     }
   }
-  
-  
+
+  static async updateProgression(username, progression) {
+    try {
+        console.log("Updating progression for user:", username); 
+        console.log("Progression data:", progression); 
+
+        // Iterate over the keys in the progression object
+        for (const key in progression) {
+            if (progression.hasOwnProperty(key)) {
+                // Update only the specific part of the progression
+                await pool.query(
+                    `UPDATE users SET progression = jsonb_set(progression, $1, $2::jsonb) WHERE username = $3`,
+                    [`{${key}}`, JSON.stringify(progression[key]), username]
+                );
+            }
+        }
+    } catch (err) {
+        console.error("DB error in updateProgression:", err);
+        throw err;
+    }
+}
+
   
   static async getWallet(userId) {
     try {

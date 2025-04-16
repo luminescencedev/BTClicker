@@ -58,18 +58,19 @@ export default function Clicker() {
     };
 
     return (
-        <div id="clicker">
-            <span id="spanwallet">
+        <>
+        <span id="spanwallet">
                 <img src="/wallet.svg" alt="Wallet" />
                 Bitcoin : {bitcoin.toFixed(7)}
-            </span>
-            <div>
+        </span>
+        <div id="clicker">
+
                 <h2>Mining</h2>
                 <article>
                     <button onClick={mineBitcoin}>Mine a Bitcoin</button>
                     <p>Click Power: {clickPower.toFixed(9)}</p>
                 </article>
-            </div>
         </div>
+        </>
     );
 }

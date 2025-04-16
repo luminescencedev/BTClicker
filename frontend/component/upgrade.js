@@ -81,7 +81,9 @@ export default function Upgrade() {
             }
         }
     };
-
+    const col1 = upgrades.slice(0, 4);
+    const col2 = upgrades.slice(4, 6);
+    const col3 = upgrades.slice(6, 8);
     return (
         <div id="upgrade">
             <span id="spanwallet">
@@ -90,6 +92,7 @@ export default function Upgrade() {
             </span>
             <div>
                 <h2>Upgrades</h2>
+                
                 {upgrades.map((upgrade) => (
                     <article key={upgrade.id}>
                         <button onClick={() => handleUpgrade(upgrade.id)}>

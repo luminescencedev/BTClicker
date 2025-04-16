@@ -30,14 +30,31 @@ article button:hover{
 /* //////////////////////////////
 //////////// clicker //////////// 
 ///////////////////////////////// */
+#seconddiv{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
 #clicker,#upgrade{
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
     margin: 0 1%;
 }
+#clicker{
+    width: 50%;
+}
+#clicker article{
+    align-items: center;
+    justify-content: left;
+}
+#clicker article button{
+    width: 20%;
+    margin-right: 2%;
+}
 #spanwallet{
-    width: 100%;
+    width: 98%;
+    margin: 0 1%;
     display: flex;
     justify-content: end;
 }
@@ -52,38 +69,41 @@ article button:hover{
     width: 100%;
     margin-bottom: 5%;
 }
-#clicker form{
 
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-}
-#clicker select{
-    border: solid black 1px;
-    border-radius: .2em;
-    margin-right: 2%;
-}
-#clicker input{
-    border: solid black 1px;
-}
 input[type="submit"]{
     margin-left: 20%;
     padding: 1% 2%;
+}
+
+#bot{
+    width: 45%;
 }
 
 /* /////////////////////////////////////
 //////////////// UPGRADE ///////////////
 //////////////////////////////////////// */
 
+#upgrade div{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+
+}
 #upgrade article{
     padding: 1% 0;
-
-    align-items: center;
+    width: 31%;
+    display: flex;
+    justify-content: left;
 }
 #upgrade article button{
     margin-top: 2%;
+    width: 30%;
+    margin-right: 2%;
 }
-
+#upgrade section p{
+    font-size: 13px;
+    width: 100%;
+}
 .bot-progress-container {
     width: 100%;
     height: 20px;

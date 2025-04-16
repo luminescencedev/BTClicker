@@ -15,7 +15,7 @@ export default function Home() {
         <div className="h-[50%] w-full p-1">
           <Terminal setActiveComponent={setActiveComponent} /> 
         </div>
-        <div className="h-[50%] w-full">
+        <div id="seconddiv">
           {activeComponent === "clicker" ? (
             <>
             <Clicker />

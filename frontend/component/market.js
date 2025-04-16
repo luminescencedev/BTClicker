@@ -133,6 +133,10 @@ export default function Market() {
 
     return (
         <div className="market-container">
+            <span id="spanwallet">
+                <img src="/wallet.svg" alt="Wallet" />
+                Bitcoin : {bitcoin.toFixed(7)}
+        </span>
             <h2>Market Betting</h2>
             <article>
                 <div>

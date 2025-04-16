@@ -25,7 +25,7 @@ article button:hover{
     color: white;
     background-color: rgb(59, 59, 59);
     transition: .2s;
-    border: solid rgb(181, 181, 181) 2px;
+    border: solid rgb(181, 181, 181) 1px;
 }
 /* //////////////////////////////
 //////////// clicker //////////// 

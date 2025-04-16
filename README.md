@@ -1,4 +1,4 @@
-# Planity Clone - API & Frontend
+# BTClicker - API & Frontend
 
 ## Prérequis
 
@@ -29,23 +29,23 @@ Avant de commencer, assurez-vous d'avoir les éléments suivants installés sur 
 
 1. **Créer la base de données :**
    - Dans pgAdmin, faites un clic droit sur "Databases" > "Create" > "Database".
-   - Donnez le nom `planity` à la base de données et cliquez sur "Save".
+   - Donnez le nom `btclicker` à la base de données et cliquez sur "Save".
 
 2. **Importer le fichier SQL :**
    - Naviguez dans le dossier `bdd` du projet.
-   - Dans pgAdmin, sélectionnez la base de données `planity`, puis cliquez sur l'onglet "Query Tool".
-   - Ouvrez le fichier `Planity.sql` dans un éditeur de texte, copiez son contenu, et collez-le dans la "Query Tool".
+   - Dans pgAdmin, sélectionnez la base de données `btclicker`, puis cliquez sur l'onglet "Query Tool".
+   - Ouvrez le fichier `BTClicker.sql` dans un éditeur de texte, copiez son contenu, et collez-le dans la "Query Tool".
    - Cliquez sur le bouton "Execute" (icône en forme d'éclair) pour exécuter le script SQL.
 
 3. **Vérifier les tables :**
-   - Une fois le script exécuté, vérifiez que les tables ont été créées dans la base de données `planity`.
+   - Une fois le script exécuté, vérifiez que les tables ont été créées dans la base de données `btclicker`.
 
 ## Configuration
 
 1. **Cloner le projet :**
    ```sh
    git clone <URL_DU_REPO>
-   cd Planity_Clone
+   cd BTClicker
    ```
 
 2. **Créer un fichier `.env` dans le dossier `api` :**
@@ -54,7 +54,7 @@ Avant de commencer, assurez-vous d'avoir les éléments suivants installés sur 
    DB_HOST=localhost
    DB_USER=postgres
    DB_PASSWORD=<votre_mot_de_passe_postgres>
-   DB_NAME=planity
+   DB_NAME=btcclicker
    DB_PORT=5432
    SECRET_KEY=<clé_secrète_pour_les_tokens_JWT>
    ```
@@ -108,14 +108,20 @@ Avant de commencer, assurez-vous d'avoir les éléments suivants installés sur 
 - **Inscription et Connexion :**
   - Les utilisateurs peuvent s'inscrire et se connecter pour accéder à leur compte.
   
-- **Recherche de services :**
-  - Recherchez des salons par catégorie (Coiffeur, Barbier, Manucure) et par ville.
+- **BTClicker :**
+  - Cliquez pour miner des bitcoins et accumuler des ressources.
 
-- **Réservation :**
-  - Prenez rendez-vous en ligne avec des professionnels de la beauté.
+- **Améliorations :**
+  - Achetez des améliorations pour augmenter la puissance de minage ou réduire les délais.
 
-- **Gestion des salons :**
-  - Les administrateurs peuvent créer et gérer des salons.
+- **Bot Mining :**
+  - Automatisez le minage avec des bots et améliorez leurs performances.
+
+- **Marché :**
+  - Pariez sur les tendances du marché pour multiplier vos gains.
+
+- **Classement :**
+  - Comparez vos performances avec celles des autres joueurs.
 
 ### Structure du projet
 

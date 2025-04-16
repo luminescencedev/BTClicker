@@ -2,8 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import AuthContext from "../context/AuthContext";
 
 export default function Upgrade() {
-    const { user, token } = useContext(AuthContext);
-    const { bitcoin, setBitcoin } = useContext(AuthContext);
+    const { user, token, bitcoin, setBitcoin } = useContext(AuthContext);
     const [upgrades, setUpgrades] = useState([]);
 
     useEffect(() => {
@@ -19,11 +18,43 @@ export default function Upgrade() {
             }
         };
         fetchProgression();
-    }, [user, token]);
+    }, [user, token, setBitcoin]);
+
+    // Fonction de calcul du coût réel selon ID et niveau
+    const getUpgradeCost = (upgrade) => {
+        const baseCosts = {
+            1: 0.0002, // CPU
+            2: 0.0002, // RAM
+            3: 0.0004, // Cooling
+            4: 0.00001, // Motherboard
+            5: 0.00003, // Graphics
+            7: 0.0005, // Market Control
+            8: 0.001, // Loan Shark
+            9: 0.00015, // Bot Farm
+            10: 1, // Quantum Tap
+        };
+
+        const costMultipliers = {
+            1: 5,
+            2: 3,
+            3: 2,
+            4: 2.5,
+            5: 2.5,
+            7: 3,
+            8: 3,
+            9: 4,
+            10: 100,
+        };
+
+        const base = baseCosts[upgrade.id] || 0.0001;
+        const multiplier = costMultipliers[upgrade.id] || 1.15;
+
+        return base * Math.pow(multiplier, upgrade.level);
+    };
 
     const handleUpgrade = async (upgradeId) => {
         const upgrade = upgrades.find((u) => u.id === upgradeId);
-        const cost = Math.pow(1.15, upgrade.level) * 0.0001; // Coût exponentiel
+        const cost = getUpgradeCost(upgrade);
 
         if (bitcoin >= cost) {
             const newBitcoin = bitcoin - cost;
@@ -39,8 +70,7 @@ export default function Upgrade() {
                     method: "PATCH",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
+                        Authorization: `Bearer ${token}` },
                     body: JSON.stringify({
                         wallet: { balance: newBitcoin },
                         upgrades: newUpgrades,
@@ -66,7 +96,7 @@ export default function Upgrade() {
                             {upgrade.name} : lvl {upgrade.level}
                         </button>
                         <section>
-                            <p>Price : {(Math.pow(1.15, upgrade.level) * 0.0001).toFixed(6)}</p>
+                            <p>Price : {getUpgradeCost(upgrade).toFixed(7)}</p>
                             <p>Value : {upgrade.description}</p>
                         </section>
                     </article>

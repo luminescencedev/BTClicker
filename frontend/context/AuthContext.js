@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
 const [bots, setBots] = useState(0);
 const [botPower, setBotPower] = useState(0.0000159);
 const [botProgress, setBotProgress] = useState(0);
-const botInterval = 10000; // 10 secondes par exemple
+const botInterval = 5000; // 10 secondes par exemple
 
 
   useEffect(() => {

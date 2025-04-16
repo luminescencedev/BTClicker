@@ -3,12 +3,13 @@ import AuthContext from "../context/AuthContext";
 
 export default function Clicker() {
     const { user, token } = useContext(AuthContext);
-    const [bitcoin, setBitcoin] = useState(0);
-    const [bots, setBots] = useState(0);
+    const { bitcoin, bots, botPower, botProgress,setBitcoin,setBotPower,setBotProgress, setBots } = useContext(AuthContext);
+    // const [bitcoin, setBitcoin] = useState(0);
+    // const [bots, setBots] = useState(0);
+    // const [botProgress, setBotProgress] = useState(0); // Progression de la barre (0% à 100%)
+    // const [botPower, setBotPower] = useState(0.000001); // Puissance de minage des bots réduite
     const [clickPower, setClickPower] = useState(0.0000001); // Puissance de clic par défaut réduite
-    const [botPower, setBotPower] = useState(0.000001); // Puissance de minage des bots réduite
     const [botInterval, setBotInterval] = useState(10000); // Intervalle par défaut pour les bots (10s)
-    const [botProgress, setBotProgress] = useState(0); // Progression de la barre (0% à 100%)
 
     // Charger la progression depuis l'API
     const fetchProgression = async () => {
@@ -23,12 +24,12 @@ export default function Clicker() {
                     setBitcoin(data.wallet.balance || 0);
 
                     // Récupérer les niveaux des améliorations
-                    const ramLevel = data.upgrades.find((u) => u.name === "Ram")?.level || 0;
-                    const cpuLevel = data.upgrades.find((u) => u.name === "CPU")?.level || 0;
-                    const coolingLevel = data.upgrades.find((u) => u.name === "Cooling")?.level || 0;
-                    const motherboardLevel = data.upgrades.find((u) => u.name === "Motherboard")?.level || 0;
-                    const graphicsLevel = data.upgrades.find((u) => u.name === "Graphics Card")?.level || 0;
-                    const botFarmLevel = data.upgrades.find((u) => u.name === "Bot Farm")?.level || 0;
+                    let ramLevel = data.upgrades.find((u) => u.name === "Ram")?.level || 0;
+                    let cpuLevel = data.upgrades.find((u) => u.name === "CPU")?.level || 0;
+                    let coolingLevel = data.upgrades.find((u) => u.name === "Cooling")?.level || 0;
+                    let motherboardLevel = data.upgrades.find((u) => u.name === "Motherboard")?.level || 0;
+                    let graphicsLevel = data.upgrades.find((u) => u.name === "Graphics Card")?.level || 0;
+                    let botFarmLevel = data.upgrades.find((u) => u.name === "Bot Farm")?.level || 0;
 
                     // Calculer la puissance des bots
                     const baseBotPower = 0.000001; // Réduction de la puissance initiale
@@ -38,17 +39,17 @@ export default function Clicker() {
                     setBotPower(totalBotPower);
 
                     // Calculer l'intervalle des bots
-                    const cpuMultiplier = 1 + cpuLevel * 0.05; // CPU réduit l'intervalle
+                    let cpuMultiplier = 1 + cpuLevel * 0.05; // CPU réduit l'intervalle
                     setBotInterval(10000 / cpuMultiplier); // Intervalle de base augmenté
 
                     // Calculer la puissance de clic
-                    const baseClickPower = 0.0000001; // Réduction de la puissance initiale
-                    const motherboardBonus = 0 // Motherboard augmente la puissance
+                    let baseClickPower = 0.0000001; // Réduction de la puissance initiale
+                    let motherboardBonus = 0 // Motherboard augmente la puissance
                     if (motherboardLevel > 0) {
                         motherboardBonus = baseClickPower * Math.pow(1.4, motherboardLevel); 
                     }
-                    const graphicsMultiplier = 1 + graphicsLevel * 0.4; // Graphics multiplie la puissance
-                    const totalClickPower = (baseClickPower + motherboardBonus) * graphicsMultiplier;
+                    let graphicsMultiplier = 1 + graphicsLevel * 0.4; // Graphics multiplie la puissance
+                    let totalClickPower = (baseClickPower + motherboardBonus) * graphicsMultiplier;
                     
                     setClickPower(totalClickPower);
 
@@ -121,7 +122,7 @@ export default function Clicker() {
         <div id="clicker">
             <span id="spanwallet">
                 <img src="/wallet.svg" alt="Wallet" />
-                Bitcoin : {bitcoin.toFixed(6)}
+                Bitcoin : {bitcoin.toFixed(7)}
             </span>
             <div>
                 <h2>Mining</h2>

@@ -3,7 +3,7 @@ import AuthContext from "../context/AuthContext";
 
 export default function Upgrade() {
     const { user, token } = useContext(AuthContext);
-    const [bitcoin, setBitcoin] = useState(0);
+    const { bitcoin, setBitcoin } = useContext(AuthContext);
     const [upgrades, setUpgrades] = useState([]);
 
     useEffect(() => {
@@ -56,7 +56,7 @@ export default function Upgrade() {
         <div id="upgrade">
             <span id="spanwallet">
                 <img src="/wallet.svg" alt="Wallet" />
-                Bitcoin : {bitcoin.toFixed(6)}
+                Bitcoin : {bitcoin.toFixed(7)}
             </span>
             <div>
                 <h2>Upgrades</h2>

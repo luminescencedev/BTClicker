@@ -50,15 +50,24 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 if (args.length < 3) {
                     output = 'Usage: /register [username] [password]';
                 } else {
+                    const username = args[1];
+                    const password = args[2];
+
+                    const passwordRegex = /^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
+                    if (!passwordRegex.test(password)) {
+                        output = 'Password must be at least 8 characters long, contain at least one uppercase letter and one special character.';
+                        break;
+                    }
+
                     try {
                         const response = await fetch('http://localhost:3001/register', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ username: args[1], password: args[2] }),
+                            body: JSON.stringify({ username, password }),
                         });
 
                         if (response.ok) {
-                            output = `User "${args[1]}" successfully registered.`;
+                            output = `User "${username}" successfully registered.`;
                         } else {
                             const errorData = await response.json();
                             output = `Registration error: ${errorData.error}`;

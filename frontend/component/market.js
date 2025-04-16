@@ -4,44 +4,37 @@ import AuthContext from "../context/AuthContext";
 export default function Market() {
     const { user, token } = useContext(AuthContext);
     const { bitcoin, setBitcoin } = useContext(AuthContext);
-    const [marketControlLevel, setMarketControlLevel] = useState(0); // Niveau de Market Control
-    const [isBetting, setIsBetting] = useState(false); // Si un pari est en cours
-    const [cooldown, setCooldown] = useState(false); // Si le cooldown est actif
-    const [marketCooldown, setMarketCooldown] = useState(60); // Cooldown initial
-    const [betDirection, setBetDirection] = useState("up"); // "up" ou "down"
-    const [randomNumber, setRandomNumber] = useState(null); // Nombre aléatoire en cours
-    const [betResultMessage, setBetResultMessage] = useState(""); // Message de résultat
+    const [marketControlLevel, setMarketControlLevel] = useState(0);
+    const [isBetting, setIsBetting] = useState(false);
+    const [cooldown, setCooldown] = useState(false);
+    const [marketCooldown, setMarketCooldown] = useState(60);
+
+    const [randomNumber, setRandomNumber] = useState(null); // Vrai résultat
+    const [displayedNumber, setDisplayedNumber] = useState(null); // Affiché pendant l’animation
+    const [betResultMessage, setBetResultMessage] = useState("");
+
     const cooldownRef = useRef(null);
-    const randomIntervalRef = useRef(null); // Référence de l'intervalle pour le nombre aléatoire
+    const randomIntervalRef = useRef(null);
+    const displayIntervalRef = useRef(null);
 
-    const maxCooldown = 60; // Cooldown de base de 60 secondes
-    const cooldownReduction = 5 * marketControlLevel; // Réduction du cooldown par niveau de Market Control
-    const cooldownTime = Math.max(maxCooldown - cooldownReduction, 10); // Ne pas descendre sous 10 secondes
+    const maxCooldown = 60;
+    const cooldownReduction = 5 * marketControlLevel;
+    const cooldownTime = Math.max(maxCooldown - cooldownReduction, 10);
 
-    // Calcul du betAmount en fonction du niveau de Market Control
-    const betAmount = bitcoin * (0.1 * marketControlLevel); // 10% * Market Control Level
+    const betAmount = bitcoin * (0.1 * marketControlLevel);
 
     useEffect(() => {
-        // Fetch market upgrades
         const fetchMarketUpgrades = async () => {
             try {
                 const res = await fetch(`http://localhost:3001/status/${user.username}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                if (!res.ok) {
-                    throw new Error('Failed to fetch market upgrades');
-                }
+                if (!res.ok) throw new Error('Failed to fetch market upgrades');
 
                 const data = await res.json();
-                console.log("Fetched data:", data); // Log data for debugging
-
-                if (data && data.upgrades) {
-                    const marketControl = data.upgrades.find((u) => u.name === "Market Control");
-                    setMarketControlLevel(marketControl?.level || 0);
-                } else {
-                    console.error("Data structure is incorrect or upgrades not found.");
-                }
+                const marketControl = data.upgrades.find((u) => u.name === "Market Control");
+                setMarketControlLevel(marketControl?.level || 0);
             } catch (err) {
                 console.error("Error fetching market upgrades:", err);
             }
@@ -52,73 +45,73 @@ export default function Market() {
         }
     }, [user, token]);
 
-    // Fonction qui génère un nombre aléatoire (entre 0 et 10)
+    // Animation continue (slot machine style) pendant qu'on ne parie pas
     useEffect(() => {
-        if (!cooldown) {
-            // Lancer l'animation du nombre aléatoire
+        if (!cooldown && !isBetting) {
             randomIntervalRef.current = setInterval(() => {
-                setRandomNumber(Math.floor(Math.random() * 10)+1); // Un nombre entre 0 et 10
-            }, 50); // Change toutes les 100ms
+                const rand = Math.floor(Math.random() * 10) + 1;
+                setRandomNumber(rand); // Vrai résultat
+                setDisplayedNumber(rand); // Affichage en temps réel
+            }, 50);
         }
 
-        // Nettoyage de l'intervalle après que le pari soit effectué ou que le cooldown soit activé
-        return () => {
-            clearInterval(randomIntervalRef.current);
-        };
-    }, [isBetting, cooldown]);
+        return () => clearInterval(randomIntervalRef.current);
+    }, [cooldown, isBetting]);
 
-    // Fonction qui arrête le nombre aléatoire après la mise
     const stopRandomNumber = () => {
         clearInterval(randomIntervalRef.current);
     };
 
-    // Fonction qui gère un pari
     const handleBet = (value) => {
-        if (cooldown) return; // Si un pari est en cours, on ne peut pas parier
+        if (cooldown) return;
 
-        setIsBetting(true); // Commencer le pari
-        const rand = randomNumber; // Utiliser le nombre généré aléatoirement
+        stopRandomNumber(); // Arrête l’animation initiale
+        const finalRand = randomNumber; // Fixe le vrai résultat
+        setIsBetting(true);
 
-        // Si le nombre est supérieur à 5, il gagne
-        const isSuccess = rand > 5;
-        
+        // Lancer une animation fake pendant qu’on attend le résultat
+        displayIntervalRef.current = setInterval(() => {
+            setDisplayedNumber(Math.floor(Math.random() * 10) + 1);
+        }, 100);
 
+        const isSuccess = finalRand > 5;
         let progress = 0;
+
         const animationInterval = setInterval(() => {
             progress += 10;
             if (progress >= 100) {
                 clearInterval(animationInterval);
+                clearInterval(displayIntervalRef.current);
+                setDisplayedNumber(finalRand); // Affiche enfin le bon résultat
+
+                const winnings = betAmount;
+
                 if (!isSuccess && value === "down") {
-                    const winnings = betAmount;
-                    setBitcoin(prev => prev + winnings); // Gain
+                    setBitcoin(prev => prev + winnings);
                     setBetResultMessage(`You won! You gained ${winnings.toFixed(7)} BTC.`);
                 } else if (isSuccess && value === "up") {
-                    const winnings = betAmount;
-                    setBitcoin(prev => prev + winnings); // Gain
+                    setBitcoin(prev => prev + winnings);
                     setBetResultMessage(`You won! You gained ${winnings.toFixed(7)} BTC.`);
                 } else {
-                    setBitcoin(prev => prev - betAmount); // Perte
-                    setBetResultMessage(`You lost! You lost ${betAmount.toFixed(7)} BTC.`);
+                    setBitcoin(prev => prev - winnings);
+                    setBetResultMessage(`You lost! You lost ${winnings.toFixed(7)} BTC.`);
                 }
+
                 setIsBetting(false);
-                setCooldown(true); // Déclencher le cooldown après le pari
-                stopRandomNumber(); // Arrêter l'intervalle aléatoire après la fin de l'animation
+                setCooldown(true);
+                setMarketCooldown(cooldownTime);
             }
         }, 100);
-
-        // Déclencher le cooldown
-        setMarketCooldown(cooldownTime);
     };
 
-    // Déclenchement du cooldown après un pari
     useEffect(() => {
         if (cooldown) {
             cooldownRef.current = setInterval(() => {
                 setMarketCooldown(prev => {
                     if (prev <= 1) {
                         clearInterval(cooldownRef.current);
-                        setCooldown(false); // Fin du cooldown
-                        setBetResultMessage(""); // Masquer le message de résultat après le cooldown
+                        setCooldown(false);
+                        setBetResultMessage("");
                         return 0;
                     }
                     return prev - 1;
@@ -128,8 +121,6 @@ export default function Market() {
 
         return () => clearInterval(cooldownRef.current);
     }, [cooldown]);
-
-   
 
     return (
         <div className="market-container">
@@ -144,7 +135,6 @@ export default function Market() {
                     <p>Bet Amount: {betAmount.toFixed(7)} BTC</p>
                 </div>
             </article>
-            
 
             <div>
                 {isBetting && <p>Betting...</p>}
@@ -152,21 +142,21 @@ export default function Market() {
             </div>
 
             <div>
-                <p>Random Number: {randomNumber}</p> {/* Nombre qui change constamment */}
+                <p>Random Number: {displayedNumber}</p>
             </div>
 
             <div>
-                <p>{betResultMessage}</p> {/* Message pour le résultat du pari */}
+                <p>{betResultMessage}</p>
             </div>
 
             <div>
-                <button 
-                    onClick={() => handleBet("up")} 
+                <button
+                    onClick={() => handleBet("up")}
                     disabled={isBetting || cooldown}>
                     +5
                 </button>
-                <button 
-                    onClick={() => handleBet("down")} 
+                <button
+                    onClick={() => handleBet("down")}
                     disabled={isBetting || cooldown}>
                     -5
                 </button>

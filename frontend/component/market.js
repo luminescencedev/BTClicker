@@ -132,7 +132,7 @@ export default function Market() {
     }
 
     return (
-        <div className="market-container">
+        <div id="market">
             <span id="spanwallet">
                 <img src="/wallet.svg" alt="Wallet" />
                 Bitcoin : {bitcoin.toFixed(7)}
@@ -159,16 +159,16 @@ export default function Market() {
                 <p>{betResultMessage}</p>
             </div>
 
-            <div>
+            <div id="divbutton">
                 <button
                     onClick={() => handleBet("up")}
                     disabled={isBetting || cooldown}>
-                    +5
+                    ↑ 5
                 </button>
                 <button
                     onClick={() => handleBet("down")}
                     disabled={isBetting || cooldown}>
-                    -5
+                    ↓ 5 
                 </button>
             </div>
         </div>

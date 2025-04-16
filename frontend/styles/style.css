@@ -35,7 +35,8 @@ article button:hover{
     display: flex;
     flex-wrap: wrap;
 }
-#clicker,#upgrade{
+#clicker,#upgrade,#market{
+    width: 100%;
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
@@ -118,4 +119,23 @@ input[type="submit"]{
     width: 0%;
     background-color: #4caf50;
     transition: width 0.1s linear;
+}
+
+#divbutton{
+    width: 100%;
+    padding-top: 2%;
+}
+
+#divbutton button{
+    margin: 0 2%;
+    padding: .3% .7%;
+    border: solid black 1px;
+    border-radius: 3em;
+    cursor: pointer;
+    width: 7%;
+}
+#divbutton button:hover{
+    background-color: #1f1f1f;
+    transition: .2s;
+    color: white;
 }

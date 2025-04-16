@@ -29,11 +29,12 @@ export default function useBotMiner({ user, token, bitcoin, setBitcoin, setBots,
 
                 const baseBotPower = 0.000001;
                 const ramBonus = baseBotPower * Math.pow(1.3, ramLevel);
-                const coolingMultiplier = Math.pow(1.1, coolingLevel);
+                const coolingMultiplier = Math.pow(1.2, coolingLevel);
                 const totalBotPower = ramBonus * coolingMultiplier;
-                const cpuMultiplier = 1 + cpuLevel * 0.05;
+                console.log(cpuLevel);
+                const cpuMultiplier = 1 + cpuLevel * 0.5;
                 const interval = 5000 / cpuMultiplier;
-
+                
                 setLocalBotPower(totalBotPower);
                 setLocalBots(botFarmLevel);
                 setBotInterval(interval);
@@ -77,7 +78,7 @@ export default function useBotMiner({ user, token, bitcoin, setBitcoin, setBots,
                 progressRef.current = progress;
                 setLocalBotProgress(progress);
                 setBotProgress(progress); // Update context state as well
-            }, 100);
+            }, 50);
 
             return () => clearInterval(botMining);
         }

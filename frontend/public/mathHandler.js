@@ -48,6 +48,13 @@ const upgrades = [
     description: "Increase the number of bots",
     level: 0,
   },
+  {
+    id: 10,
+    name: "Quantum Tap",
+    description: "Add 10% of passive bot production to your click power",
+    level: 0,
+  }
+  
 ];
 
 // Game state
@@ -56,6 +63,10 @@ const game = {
   lastUpdate: Date.now(),
   lastBetTime: 0,
   botCount: 1,
+  lastBotTick: Date.now(),
+  hasUnlockedQuantumTap: false,
+clicksInLastSecond: 0,
+
 };
 
 // Helper function to get upgrade by ID
@@ -66,18 +77,17 @@ function getUpgrade(id) {
 // Game formulas
 const formulas = {
   getProduction: () => {
-    const basePower = 0.000001;
+    let basePower = 0.00001;
 
     const ramLevel = getUpgrade(2).level;
     const coolingLevel = getUpgrade(3).level;
     const cpuLevel = getUpgrade(1).level;
     const botFarmLevel = getUpgrade(9).level;
+    
 
     // RAM: starts with a strong boost, slows down after level 5
     const ramBonus =
-      1 +
-      (Math.pow(2, Math.min(ramLevel, 5)) - 1) +
-      (ramLevel > 5 ? (ramLevel - 5) * 0.3 : 0);
+      basePower * Math.pow(1.5, ramLevel);
 
     // Cooling: smoother exponential, helps multiply RAM
     const coolingMult = Math.pow(1.2, coolingLevel);
@@ -85,34 +95,37 @@ const formulas = {
     // CPU: affects how frequently bots mine, strong early, smooth later
     const cpuMult =
       1 +
-      (Math.pow(2, Math.min(cpuLevel, 4)) - 1) +
-      (cpuLevel > 4 ? (cpuLevel - 4) * 0.2 : 0);
+      (Math.pow(1.4, Math.min(cpuLevel, 4)) - 1);
 
     // Bot Farm: now each level gives more bots, especially early
-    const botCount = Math.floor(
-      Math.pow(2, Math.min(botFarmLevel, 6)) +
-        (botFarmLevel > 6 ? (botFarmLevel - 6) * 2 : 0)
-    );
+    
 
     if (botFarmLevel === 0) return 0;
 
-    return basePower * ramBonus * coolingMult * cpuMult * botCount;
+
+    return (basePower + ramBonus) * coolingMult * cpuMult * botFarmLevel;
   },
 
   getClickPower: () => {
     const motherboardLevel = getUpgrade(4).level;
     const graphicsLevel = getUpgrade(5).level;
-
+    const basePower = 0.000001;
+    const quantumLevel = getUpgrade(10).level;
+  
     // Motherboard: stronger at low levels, slows down later
     const motherboardBonus =
-      1 +
-      (Math.pow(2, Math.min(motherboardLevel, 4)) - 1) +
-      (motherboardLevel > 4 ? (motherboardLevel - 4) * 0.25 : 0);
+      basePower * Math.pow(1.5, motherboardLevel) - 0.000001;
+  
     // Graphics: gradual multiplier that builds slowly
-    const graphicsMult = 1 + graphicsLevel * 0.08;
-
-    return 0.000001 * motherboardBonus * graphicsMult;
-  },
+    const graphicsMult = 1 + graphicsLevel * 0.6;
+  
+    // Quantum: adds 10% of passive production per level to click
+    const quantumBonus =
+      quantumLevel > 0 ? formulas.getProduction() * (quantumLevel * 0.1) : 0;
+  
+    return ((basePower + motherboardBonus) * graphicsMult) + quantumBonus;
+  }
+  ,
 
   getMaxBetPercent: () => {
     return 0.1 * getUpgrade(7).level;
@@ -124,33 +137,48 @@ const formulas = {
 
   getUpgradeCost: (upgrade) => {
     const baseCosts = {
-      1: 0.001, // CPU
-      2: 0.002, // RAM
-      3: 0.004, // Cooling
-      4: 0.00003, // Motherboard
-      5: 0.00001, // Graphics
+      1: 0.0002, // CPU
+      2: 0.0002, // RAM
+      3: 0.0004, // Cooling
+      4: 0.00001, // Motherboard
+      5: 0.00003, // Graphics
       7: 0.0005, // Market Control
       8: 0.001, // Loan Shark
-      9: 0.0015, // Bot Farm
+      9: 0.00015, // Bot Farm
+      10: 1, // Quantum Tap
+
     };
 
     // Custom cost multipliers
     const costMultipliers = {
-      1: 2.0, // CPU
-      2: 2.2, // RAM
-      3: 2.2, // Cooling
-      4: 5.5, // 🔥 Motherboard (now scales much faster)
+      1: 5, // CPU
+      2: 3, // RAM
+      3: 2, // Cooling
+      4: 2.5, // 🔥 Motherboard (now scales much faster)
       5: 2.5, // 🔥 Graphics Card (cost grows faster than its small boost)
-      7: 1.5, // Market Control
+      7: 3, // Market Control
       8: 3, // Loan Shark
-      9: 2.3, // Bot Farm
+      9: 4, // Bot Farm
+      10: 100, // Quantum Tap (scales faster)
+
     };
+
+    
 
     return (
       baseCosts[upgrade.id] *
       Math.pow(costMultipliers[upgrade.id], upgrade.level)
     );
   },
+  getBotInterval: () => {
+    const baseInterval = 5000; // 5 seconds
+    const cpuLevel = getUpgrade(1).level;
+  
+    // Each CPU level reduces interval by 10%, minimum 1s
+    const reduction = Math.min(cpuLevel * 0.19, 0.99); // max 80% reduction
+    return Math.max(50, baseInterval * (1 - reduction));
+  },
+  
 };
 // DOM elements
 const resourcesEl = document.getElementById("resources");
@@ -171,6 +199,16 @@ function formatNumber(num) {
   }
   return num.toFixed(7);
 }
+
+setInterval(() => {
+  if (!game.hasUnlockedQuantumTap && game.clicksInLastSecond >= 10) {
+    game.hasUnlockedQuantumTap = true;
+    alert("Achievement Unlocked: Quantum Tap is now available!");
+    createUpgradeElements(); // refresh upgrades UI
+  }
+  game.clicksInLastSecond = 0;
+}, 1000);
+
 
 // Update all UI elements
 function updateUI() {
@@ -212,6 +250,8 @@ function createUpgradeElements() {
   upgradesEl.innerHTML = "";
 
   upgrades.forEach((upgrade) => {
+    if (upgrade.id === 10 && !game.hasUnlockedQuantumTap) return;
+
     const cost = formulas.getUpgradeCost(upgrade);
     const div = document.createElement("div");
     div.className = "upgrade";
@@ -282,30 +322,41 @@ function placeBet() {
 // Click handler
 clickArea.addEventListener("click", () => {
   game.resources += formulas.getClickPower();
+  game.clicksInLastSecond++;
   updateUI();
 });
 
+
 // Bet button handler
 betButton.addEventListener("click", placeBet);
+const botProgressBar = document.getElementById("bot-progress-bar");
 
 // Game loop
 function gameLoop() {
   const now = Date.now();
-  const deltaTime = (now - game.lastUpdate) / 1000;
+  const interval = formulas.getBotInterval();
+  const timeSinceLastTick = now - game.lastBotTick;
 
-  // Add resources from production
-  game.resources += formulas.getProduction() * deltaTime;
+  // Update bot progress bar
+  const progress = Math.min((timeSinceLastTick / interval) * 100, 100);
+  botProgressBar.style.width = progress + "%";
+
+  // If it's time for bots to generate resources
+  if (timeSinceLastTick >= interval) {
+    game.resources += formulas.getProduction();
+    game.lastBotTick = now;
+  }
 
   game.lastUpdate = now;
   updateUI();
 
-  // Check win condition
   if (game.resources >= 21000000) {
     winMessage.style.display = "block";
   }
 
   requestAnimationFrame(gameLoop);
 }
+
 
 // Initialize the game
 createUpgradeElements();

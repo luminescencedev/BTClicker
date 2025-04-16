@@ -83,6 +83,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         if (response.ok) {
                             const data = await response.json();
                             login(data.token, { username: args[1] });
+                            console.log(data.token);
                             output = `Logged in as "${args[1]}".`;
                         } else {
                             const errorData = await response.json();
@@ -138,11 +139,24 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 break;
 
             case '/leaderboard':
-                output = `<pre>Leaderboard:
-1. User1 - 1000 points
-2. User2 - 900 points
-3. User3 - 800 points</pre>`;
+                try {
+                    const response = await fetch('http://localhost:3001/leaderboard', {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
 
+                    if (response.ok) {
+                        const users = await response.json();
+                        output = `<pre>Leaderboard:\n${users
+                            .map((user, index) => `${index + 1}. ${user.username} - ${user.balance} BTC`)
+                            .join('\n')}</pre>`;
+                    } else {
+                        const errorData = await response.json();
+                        output = `Error fetching leaderboard: ${errorData.error}`;
+                    }
+                } catch (error) {
+                    output = `Network error: ${error.message}`;
+                }
                 break;
 
             case '/achievements':
@@ -161,6 +175,52 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 }
                 break;
 
+                case '/status':
+                    if (user) {
+                        try {
+                            const response = await fetch(`http://localhost:3001/status/${user.username}`, {
+                                method: 'GET',
+                                headers: { 'Content-Type': 'application/json' },
+                            });
+
+                            if (response.ok) {
+                                const progression = await response.json();
+
+                                // Formater les données pour un affichage clair
+                                const market = progression.market || {};
+                                const wallet = progression.wallet || {};
+                                const achievements = progression.achievements || [];
+                                const upgrades = progression.upgrades || [];
+
+                                output = `<pre>Status for user "${user.username}":
+
+                Market:
+Trend: ${market.trend || 'N/A'}
+Steps: ${market.steps || 0}
+
+                Wallet:
+Balance: ${wallet.balance || 0} BTC
+
+                Achievements:
+${achievements.map((ach, index) => `  ${index + 1}. ${ach.name} - ${ach.description}`).join('\n')}
+
+                Upgrades:
+${upgrades.map((upg) => `  ${upg.name}: Level ${upg.level}`).join('\n')}
+                </pre>`;
+                            } else {
+                                const errorData = await response.json();
+                                output = `Error fetching status: ${errorData.error}`;
+                            }
+                        } catch (error) {
+                            output = `Network error: ${error.message}`;
+                        }
+                    } else {
+                        output = 'No user is logged in. Please log in to view your status.';
+                    }
+                    break;
+                
+
+                
             case '/clear':
                 setHistoryIndex(-1);
                 setHistory([

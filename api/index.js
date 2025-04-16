@@ -116,6 +116,51 @@ app.patch("/progressionUpgrade", authenticate, async (req, res) => {
     }
 });
 
+
+app.post("/give", authenticate, async (req, res) => {
+  const username = req.user?.username; // 🔐 On prend depuis le token
+  const { amount } = req.body;
+
+  if (!username || isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ error: "Invalid amount or username." });
+  }
+
+  try {
+    const user = await User.getUserByUsername(username);
+
+    if (!user) {
+        return res.status(404).json({ error: "User not found." });
+    }
+
+    // Assure-toi de récupérer la balance actuelle de l'utilisateur (avec await)
+    const walletData = await User.getWallet(user.id); // Utilisation de await pour obtenir la valeur retournée
+    const currentWallet = walletData.status === 200 ? parseFloat(walletData.wallet.balance) : 0;
+
+    // Assure-toi que l'amount est bien un nombre
+    const numericAmount = parseFloat(amount);
+
+    // Si la conversion échoue, retourne une erreur
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+        return res.status(400).json({ error: "Invalid amount" });
+    }
+
+    // Additionner la nouvelle valeur à la balance existante
+    const newWallet = currentWallet + numericAmount;
+
+    // Mise à jour de la progression avec la nouvelle balance
+    await User.updateProgression(username, { wallet: { balance: newWallet } });
+
+    // Retourner une réponse avec la nouvelle balance
+    res.status(200).json({ message: `Added ${numericAmount} to ${username}'s wallet.`, newWallet });
+} catch (error) {
+    console.error("Error in /give:", error);
+    res.status(500).json({ error: "Unexpected server error" });
+}
+
+});
+
+
+
 //POST LOGIN / REGISTER
 app.post("/login", async (req, res) => {
   try {

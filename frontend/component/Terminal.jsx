@@ -5,7 +5,7 @@ const Terminal = ({ setActiveComponent }) => {
     const [input, setInput] = useState('');
     const [history, setHistory] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
-    const [historyIndex, setHistoryIndex] = useState(-1); 
+    const [historyIndex, setHistoryIndex] = useState(-1);
     const [suggestionIndex, setSuggestionIndex] = useState(-1);
     const { login, logout, user } = useContext(AuthContext);
     const terminalEndRef = useRef(null);
@@ -14,6 +14,7 @@ const Terminal = ({ setActiveComponent }) => {
         '/achievements',
         '/clear',
         '/clicker',
+        '/give',
         '/help',
         '/leaderboard',
         '/login',
@@ -188,6 +189,51 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
 3. Achievement 3 - Description of achievement 3</pre>`;
                 break;
 
+
+            case '/give':
+                if (!user) {
+                    output = 'You must be logged in to use this command.';
+                    break;
+                }
+
+                if (args.length !== 2 || isNaN(args[1]) || Number(args[1]) <= 0) {
+                    output = 'Usage: /give [amount] — amount must be a positive number.';
+                    break;
+                }
+
+                const amount = parseFloat(args[1]);
+                const token = localStorage.getItem('token'); // 🔥 ici on le récupère
+
+                if (!token) {
+                    output = 'Authentication token not found. Please log in again.';
+                    break;
+                }
+
+                try {
+                    const response = await fetch('http://localhost:3001/give', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({
+                            username: user.username,
+                            amount: amount,
+                        }),
+                    });
+
+                    if (response.ok) {
+                        output = `You have received ${amount} BTC. 💰`;
+                    } else {
+                        const errorData = await response.json();
+                        output = `Error giving BTC: ${errorData.error}`;
+                    }
+                } catch (error) {
+                    output = `Network error: ${error.message}`;
+                }
+                break;
+
+
             case '/upgrade':
                 if (user) {
                     setActiveComponent("upgrade"); // Activer le composant Upgrade
@@ -197,24 +243,24 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 }
                 break;
 
-                case '/status':
-                    if (user) {
-                        try {
-                            const response = await fetch(`http://localhost:3001/status/${user.username}`, {
-                                method: 'GET',
-                                headers: { 'Content-Type': 'application/json' },
-                            });
+            case '/status':
+                if (user) {
+                    try {
+                        const response = await fetch(`http://localhost:3001/status/${user.username}`, {
+                            method: 'GET',
+                            headers: { 'Content-Type': 'application/json' },
+                        });
 
-                            if (response.ok) {
-                                const progression = await response.json();
+                        if (response.ok) {
+                            const progression = await response.json();
 
-                                // Formater les données pour un affichage clair
-                                const market = progression.market || {};
-                                const wallet = progression.wallet || {};
-                                const achievements = progression.achievements || [];
-                                const upgrades = progression.upgrades || [];
+                            // Formater les données pour un affichage clair
+                            const market = progression.market || {};
+                            const wallet = progression.wallet || {};
+                            const achievements = progression.achievements || [];
+                            const upgrades = progression.upgrades || [];
 
-                                output = `<pre>Status for user "${user.username}":
+                            output = `<pre>Status for user "${user.username}":
 
                 Market:
 Trend: ${market.trend || 'N/A'}
@@ -229,26 +275,26 @@ ${achievements.map((ach, index) => `  ${index + 1}. ${ach.name} - ${ach.descript
                 Upgrades:
 ${upgrades.map((upg) => `  ${upg.name}: Level ${upg.level}`).join('\n')}
                 </pre>`;
-                            } else {
-                                const errorData = await response.json();
-                                output = `Error fetching status: ${errorData.error}`;
-                            }
-                        } catch (error) {
-                            output = `Network error: ${error.message}`;
+                        } else {
+                            const errorData = await response.json();
+                            output = `Error fetching status: ${errorData.error}`;
                         }
-                    } else {
-                        output = 'No user is logged in. Please log in to view your status.';
+                    } catch (error) {
+                        output = `Network error: ${error.message}`;
                     }
-                    break;
-                
+                } else {
+                    output = 'No user is logged in. Please log in to view your status.';
+                }
+                break;
 
-                
+
+
             case '/clear':
                 setHistoryIndex(-1);
                 setHistory([
-            {
-                command: '',
-                output: `<pre>$$$$$$$\\ $$$$$$$$\\  $$$$$$\\  $$\\       $$$$$$\\  $$$$$$\\  $$\\   $$\\ $$$$$$$$\\ $$$$$$$\\  
+                    {
+                        command: '',
+                        output: `<pre>$$$$$$$\\ $$$$$$$$\\  $$$$$$\\  $$\\       $$$$$$\\  $$$$$$\\  $$\\   $$\\ $$$$$$$$\\ $$$$$$$\\  
 $$  __$$\\\\__$$  __|$$  __$$\\ $$ |      \\_$$  _|$$  __$$\\ $$ | $$  |$$  _____|$$  __$$\\ 
 $$ |  $$ |  $$ |   $$ /  \\__|$$ |        $$ |  $$ /  \\__|$$ |$$  / $$ |      $$ |  $$ |
 $$$$$$$\\ |  $$ |   $$ |      $$ |        $$ |  $$ |      $$$$$  /  $$$$$\\    $$$$$$$  |
@@ -256,8 +302,8 @@ $$  __$$\\   $$ |   $$ |      $$ |        $$ |  $$ |      $$  $$<   $$  __|   $$
 $$ |  $$ |  $$ |   $$ |  $$\\ $$ |        $$ |  $$ |  $$\\ $$ |\\$$\\  $$ |      $$ |  $$ |
 $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$$\\ $$ |  $$ |
 \\_______/   \\__|    \\______/ \\________|\\______| \\______/ \\__|  \\__|\\________|\\__|  \\__|</pre><br>`,
-            }
-        ]);
+                    }
+                ]);
                 return;
 
             default:
@@ -387,7 +433,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         className="flex-1 bg-black text-white p-2 focus:outline-none"
                         value={input}
                         onChange={handleInputChange}
-                        onKeyDown={handleKeyDown} 
+                        onKeyDown={handleKeyDown}
                         placeholder="Enter a command /..."
                     />
                 </div>
@@ -396,7 +442,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         {suggestions.map((suggestion, index) => (
                             <div
                                 key={index}
-                                className={`cursor-pointer p-1 ${ index === suggestionIndex ? 'bg-zinc-900 rounded-sm' : 'hover:bg-zinc-900'}`}
+                                className={`cursor-pointer p-1 ${index === suggestionIndex ? 'bg-zinc-900 rounded-sm' : 'hover:bg-zinc-900'}`}
                                 onClick={() => {
                                     setInput(suggestion);
                                     setSuggestions([]);

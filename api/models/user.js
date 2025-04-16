@@ -176,28 +176,32 @@ class User {
 }
 
   
-  static async getWallet(userId) {
-    try {
-      const [rows] = await db.query("SELECT progression -> wallet -> balance FROM users WHERE user_id = ?", [userId]);
-      
-      if (rows.length === 0) {
-        return {
-          status: 404,
-          wallet: { error: "Wallet not found" },
-        };
+static async getWallet(userId) {
+  try {
+      const result = await pool.query(
+          "SELECT progression->'wallet'->>'balance' AS balance FROM users WHERE id = $1",
+          [userId]
+      );
+
+      if (result.rows.length === 0) {
+          return {
+              status: 404,
+              wallet: { error: "Wallet not found" },
+          };
       }
 
       return {
-        status: 200,
-        wallet: {
-          balance: rows[0].balance,
-        },
+          status: 200,
+          wallet: {
+              balance: parseFloat(result.rows[0].balance) || 0, // Assure-toi que la balance est bien un nombre
+          },
       };
-    } catch (err) {
+  } catch (err) {
       console.error("DB error in getWallet:", err);
       throw err;
-    }
   }
+}
+
 
   // In your user controller
   static async getAllUsers(req, res) {

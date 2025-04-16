@@ -35,15 +35,15 @@ export default function Upgrade() {
         };
 
         const costMultipliers = {
-            1: 5,
-            2: 3,
-            3: 2,
-            4: 2.5,
-            5: 2.5,
-            7: 3,
-            8: 3,
-            9: 4,
-            10: 100,
+            1: 1.6,
+            2: 1.3,
+            3: 1.6,
+            4: 1.5,
+            5: 1.9,
+            7: 5,
+            8: 2.4,
+            9: 1.7,
+            10: 10,
         };
 
         const base = baseCosts[upgrade.id] || 0.0001;

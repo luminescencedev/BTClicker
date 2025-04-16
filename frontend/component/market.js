@@ -45,13 +45,12 @@ export default function Market() {
         }
     }, [user, token]);
 
-    // Animation continue (slot machine style) pendant qu'on ne parie pas
     useEffect(() => {
         if (!cooldown && !isBetting) {
             randomIntervalRef.current = setInterval(() => {
                 const rand = Math.floor(Math.random() * 10) + 1;
-                setRandomNumber(rand); // Vrai résultat
-                setDisplayedNumber(rand); // Affichage en temps réel
+                setRandomNumber(rand);
+                setDisplayedNumber(rand);
             }, 50);
         }
 
@@ -65,11 +64,10 @@ export default function Market() {
     const handleBet = (value) => {
         if (cooldown) return;
 
-        stopRandomNumber(); // Arrête l’animation initiale
-        const finalRand = randomNumber; // Fixe le vrai résultat
+        stopRandomNumber();
+        const finalRand = randomNumber;
         setIsBetting(true);
 
-        // Lancer une animation fake pendant qu’on attend le résultat
         displayIntervalRef.current = setInterval(() => {
             setDisplayedNumber(Math.floor(Math.random() * 10) + 1);
         }, 100);
@@ -82,7 +80,7 @@ export default function Market() {
             if (progress >= 100) {
                 clearInterval(animationInterval);
                 clearInterval(displayIntervalRef.current);
-                setDisplayedNumber(finalRand); // Affiche enfin le bon résultat
+                setDisplayedNumber(finalRand);
 
                 const winnings = betAmount;
 
@@ -122,16 +120,28 @@ export default function Market() {
         return () => clearInterval(cooldownRef.current);
     }, [cooldown]);
 
+    // ⛔ Bloquer l'accès si le Market Control est niveau 0
+    if (marketControlLevel === 0) {
+        return (
+            <div className="market-container">
+                <h2>Market Betting</h2>
+                <p>⚠️ You must unlock <strong>Market Control</strong> to use this feature.</p>
+                <p>Upgrade it from the store or your profile to start betting!</p>
+            </div>
+        );
+    }
+
     return (
         <div className="market-container">
             <span id="spanwallet">
                 <img src="/wallet.svg" alt="Wallet" />
                 Bitcoin : {bitcoin.toFixed(7)}
-        </span>
+            </span>
+
             <h2>Market Betting</h2>
             <article>
                 <div>
-                    <h3>Your Current Balance: {bitcoin} BTC</h3>
+                    <h3>Your Current Balance: {bitcoin.toFixed(7)} BTC</h3>
                     <p>Bet Amount: {betAmount.toFixed(7)} BTC</p>
                 </div>
             </article>

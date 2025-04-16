@@ -24,7 +24,7 @@ export default function Clicker() {
                     const motherboardLevel = data.upgrades.find((u) => u.name === "Motherboard")?.level || 0;
                     const graphicsLevel = data.upgrades.find((u) => u.name === "Graphics Card")?.level || 0;
 
-                    const baseClickPower = 0.0000001;
+                    const baseClickPower = 0.000001;
                     const motherboardBonus = motherboardLevel > 0 ? baseClickPower * Math.pow(1.4, motherboardLevel) : 0;
                     const graphicsMultiplier = 1 + graphicsLevel * 0.4;
                     const totalClickPower = (baseClickPower + motherboardBonus) * graphicsMultiplier;

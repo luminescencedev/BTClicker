@@ -133,7 +133,7 @@ app.post("/login", async (req, res) => {
       },
       SECRET_KEY,
       {
-        expiresIn: "2h",
+        expiresIn: "4h",
       }
     );
 

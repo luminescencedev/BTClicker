@@ -50,15 +50,36 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 if (args.length < 3) {
                     output = 'Usage: /register [username] [password]';
                 } else {
+                    const username = args[1];
+                    const password = args[2];
+
+                    // Validation du mot de passe avec une expression régulière
+                    const passwordRegex = /^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
+                    if (!passwordRegex.test(password)) {
+                        output = 'Password must be at least 8 characters long, contain at least one uppercase letter and one special character.';
+                        break;
+                    }
+
+                    // Validation du nom d'utilisateur (suppression des caractères spéciaux)
+                    const usernameRegex = /^[a-zA-Z0-9_]+$/; // uniquement des caractères alphanumériques et underscores
+                    if (!usernameRegex.test(username)) {
+                        output = 'Username can only contain letters, numbers, and underscores.';
+                        break;
+                    }
+
+                    // Nettoyage des entrées pour éviter les risques côté serveur
+                    const sanitizedUsername = username.replace(/[^a-zA-Z0-9_]/g, '');  // supprime les caractères spéciaux
+                    const sanitizedPassword = password.replace(/[^a-zA-Z0-9!@#$%^&*()_+\-=~`{}\[\]:;"'<>,.?/\\|]/g, '');  // supprime les caractères non spéciaux autorisés
+
                     try {
                         const response = await fetch('http://localhost:3001/register', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ username: args[1], password: args[2] }),
+                            body: JSON.stringify({ username: sanitizedUsername, password: sanitizedPassword }),
                         });
 
                         if (response.ok) {
-                            output = `User "${args[1]}" successfully registered.`;
+                            output = `User "${sanitizedUsername}" successfully registered.`;
                         } else {
                             const errorData = await response.json();
                             output = `Registration error: ${errorData.error}`;
@@ -68,6 +89,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                     }
                 }
                 break;
+
 
             case '/login':
                 if (args.length < 3) {

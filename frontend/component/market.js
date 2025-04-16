@@ -57,7 +57,7 @@ export default function Market() {
         if (!cooldown) {
             // Lancer l'animation du nombre aléatoire
             randomIntervalRef.current = setInterval(() => {
-                setRandomNumber(Math.floor(Math.random() * 11)); // Un nombre entre 0 et 10
+                setRandomNumber(Math.floor(Math.random() * 10)+1); // Un nombre entre 0 et 10
             }, 50); // Change toutes les 100ms
         }
 
@@ -73,7 +73,7 @@ export default function Market() {
     };
 
     // Fonction qui gère un pari
-    const handleBet = () => {
+    const handleBet = (value) => {
         if (cooldown) return; // Si un pari est en cours, on ne peut pas parier
 
         setIsBetting(true); // Commencer le pari
@@ -81,17 +81,18 @@ export default function Market() {
 
         // Si le nombre est supérieur à 5, il gagne
         const isSuccess = rand > 5;
+        
 
         let progress = 0;
         const animationInterval = setInterval(() => {
             progress += 10;
             if (progress >= 100) {
                 clearInterval(animationInterval);
-                if (isSuccess && betDirection === "up") {
+                if (!isSuccess && value === "down") {
                     const winnings = betAmount;
                     setBitcoin(prev => prev + winnings); // Gain
                     setBetResultMessage(`You won! You gained ${winnings.toFixed(7)} BTC.`);
-                } else if (!isSuccess && betDirection === "down") {
+                } else if (isSuccess && value === "up") {
                     const winnings = betAmount;
                     setBitcoin(prev => prev + winnings); // Gain
                     setBetResultMessage(`You won! You gained ${winnings.toFixed(7)} BTC.`);
@@ -128,6 +129,8 @@ export default function Market() {
         return () => clearInterval(cooldownRef.current);
     }, [cooldown]);
 
+   
+
     return (
         <div className="market-container">
             <h2>Market Betting</h2>
@@ -137,14 +140,7 @@ export default function Market() {
                     <p>Bet Amount: {betAmount.toFixed(7)} BTC</p>
                 </div>
             </article>
-            <div>
-                <button onClick={() => setBetDirection("up")} disabled={isBetting || cooldown}>
-                    +5
-                </button>
-                <button onClick={() => setBetDirection("down")} disabled={isBetting || cooldown}>
-                    -5
-                </button>
-            </div>
+            
 
             <div>
                 {isBetting && <p>Betting...</p>}
@@ -159,9 +155,18 @@ export default function Market() {
                 <p>{betResultMessage}</p> {/* Message pour le résultat du pari */}
             </div>
 
-            <button onClick={handleBet} disabled={isBetting || cooldown}>
-                Make Bet
-            </button>
+            <div>
+                <button 
+                    onClick={() => handleBet("up")} 
+                    disabled={isBetting || cooldown}>
+                    +5
+                </button>
+                <button 
+                    onClick={() => handleBet("down")} 
+                    disabled={isBetting || cooldown}>
+                    -5
+                </button>
+            </div>
         </div>
     );
 }

@@ -28,7 +28,6 @@ export const AuthProvider = ({ children }) => {
         .then((data) => {
           setBitcoin(data.wallet.balance || 0);
   
-          // Optionnel : initialiser les upgrades pour botPower/bots aussi si besoin
           const botFarmLevel = data.upgrades.find((u) => u.name === "Bot Farm")?.level || 0;
           setBots(botFarmLevel);
   
@@ -43,7 +42,6 @@ export const AuthProvider = ({ children }) => {
         .catch((err) => console.error("Erreur lors du chargement du wallet :", err));
     }
   }, []);
-  
 
   const login = (newToken, userData) => {
     setToken(newToken);
@@ -60,7 +58,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // 👉 Utilisation du hook pour gérer le minage automatique
-  useBotMiner({ user, token, bitcoin, setBitcoin, setBots });
+  useBotMiner({ user, token, bitcoin, setBitcoin, setBots, setBotProgress });
 
   return (
     <AuthContext.Provider

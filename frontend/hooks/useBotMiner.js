@@ -1,10 +1,10 @@
 // hooks/useBotMiner.js
 import { useEffect, useRef, useState } from "react";
 
-export default function useBotMiner({ user, token, bitcoin, setBitcoin, setBots }) {
+export default function useBotMiner({ user, token, bitcoin, setBitcoin, setBots, setBotProgress }) {
     const [bots, setLocalBots] = useState(0);
     const [botPower, setLocalBotPower] = useState(0);
-    const [botProgress, setBotProgress] = useState(0);
+    const [botProgress, setLocalBotProgress] = useState(0);
     const [botInterval, setBotInterval] = useState(5000);
 
     const bitcoinRef = useRef(bitcoin);
@@ -67,7 +67,7 @@ export default function useBotMiner({ user, token, bitcoin, setBitcoin, setBots 
                             headers: {
                                 "Content-Type": "application/json",
                                 Authorization: `Bearer ${token}` },
-                            body: JSON.stringify({ wallet: { balance: newBitcoin } }),
+                            body: JSON.stringify({ wallet: { balance: newBitcoin } } ),
                         });
                     } catch (error) {
                         console.error("Error updating progression:", error);
@@ -75,12 +75,13 @@ export default function useBotMiner({ user, token, bitcoin, setBitcoin, setBots 
                 }
 
                 progressRef.current = progress;
-                setBotProgress(progress);
+                setLocalBotProgress(progress);
+                setBotProgress(progress); // Update context state as well
             }, 100);
 
             return () => clearInterval(botMining);
         }
-    }, [bots, botInterval, botPower, token, setBitcoin]);
+    }, [bots, botInterval, botPower, token, setBitcoin, setBotProgress]);
 
     return { bots, botPower, botProgress };
 }

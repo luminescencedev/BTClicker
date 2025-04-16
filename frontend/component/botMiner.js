@@ -1,8 +1,9 @@
+// BotMiner.js
 import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
 
 export default function BotMiner() {
-  const { bots, botPower, botProgress } = useContext(AuthContext);
+  const { bots, botPower, botProgress } = useContext(AuthContext);  // Pas besoin d'appeler useBotMiner ici
 
   return (
     <div className="flex flex-col items-center justify-center">

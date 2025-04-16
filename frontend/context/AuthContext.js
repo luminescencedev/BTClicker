@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
   
           const baseBotPower = 0.000001;
           const ramBonus = baseBotPower * Math.pow(1.3, ram);
-          const coolingMultiplier = Math.pow(1.1, cooling);
+          const coolingMultiplier = Math.pow(1.2, cooling);
           setBotPower(ramBonus * coolingMultiplier);
         })
         .catch((err) => console.error("Erreur lors du chargement du wallet :", err));

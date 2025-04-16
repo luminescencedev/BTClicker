@@ -1,26 +1,45 @@
 import { createContext, useState, useEffect } from "react";
+import useBotMiner from "../hooks/useBotMiner"; // chemin à adapter
 
 const AuthContext = createContext();
-
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
   const [bitcoin, setBitcoin] = useState(0);
-const [bots, setBots] = useState(0);
-const [botPower, setBotPower] = useState(0.0000159);
-const [botProgress, setBotProgress] = useState(0);
-const botInterval = 5000; // 10 secondes par exemple
-
+  const [bots, setBots] = useState(0);
+  const [botPower, setBotPower] = useState(0.0000159);
+  const [botProgress, setBotProgress] = useState(0);
 
   useEffect(() => {
-    // Récupérer le token et l'utilisateur depuis localStorage
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
-
+  
     if (storedToken && storedUser) {
       setToken(storedToken);
-      setUser(JSON.parse(storedUser)); // Convertir l'utilisateur en objet
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+  
+      // 💡 Fetch les données du user une fois connecté
+      fetch(`http://localhost:3001/status/${parsedUser.username}`, {
+        headers: { Authorization: `Bearer ${storedToken}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setBitcoin(data.wallet.balance || 0);
+  
+          const botFarmLevel = data.upgrades.find((u) => u.name === "Bot Farm")?.level || 0;
+          setBots(botFarmLevel);
+  
+          const ram = data.upgrades.find((u) => u.name === "Ram")?.level || 0;
+          const cooling = data.upgrades.find((u) => u.name === "Cooling")?.level || 0;
+  
+          const baseBotPower = 0.000001;
+          const ramBonus = baseBotPower * Math.pow(1.3, ram);
+          const coolingMultiplier = Math.pow(1.1, cooling);
+          setBotPower(ramBonus * coolingMultiplier);
+        })
+        .catch((err) => console.error("Erreur lors du chargement du wallet :", err));
     }
   }, []);
 
@@ -28,7 +47,7 @@ const botInterval = 5000; // 10 secondes par exemple
     setToken(newToken);
     setUser(userData);
     localStorage.setItem("token", newToken);
-    localStorage.setItem("user", JSON.stringify(userData)); // Sauvegarder l'utilisateur
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = () => {
@@ -38,57 +57,26 @@ const botInterval = 5000; // 10 secondes par exemple
     localStorage.removeItem("user");
   };
 
-  useEffect(() => {
-    if (bots > 0) {
-      let progress = 0;
-  
-      const botMining = setInterval(() => {
-        progress += 100 / (botInterval / 100);
-        if (progress >= 100) {
-          progress = 0;
-  
-          const newBitcoin = bitcoin + bots * botPower;
-          setBitcoin(newBitcoin);
-  
-          try {
-            fetch(`http://localhost:3001/progressionClicker`, {
-              method: "PATCH",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ wallet: { balance: newBitcoin } }),
-            });
-          } catch (error) {
-            console.error("Error updating progression:", error);
-          }
-        }
-  
-        setBotProgress(progress);
-      }, 100);
-  
-      return () => clearInterval(botMining);
-    }
-  }, [bots, botInterval, botPower, bitcoin, token]);
-  
+  // 👉 Utilisation du hook pour gérer le minage automatique
+  useBotMiner({ user, token, bitcoin, setBitcoin, setBots, setBotProgress });
 
   return (
     <AuthContext.Provider
-  value={{
-    token,
-    user,
-    login,
-    logout,
-    bitcoin,
-    setBitcoin,
-    bots,
-    setBots,
-    botPower,
-    setBotPower,
-    botProgress,
-    setBotProgress
-  }}
->
+      value={{
+        token,
+        user,
+        login,
+        logout,
+        bitcoin,
+        setBitcoin,
+        bots,
+        setBots,
+        botPower,
+        setBotPower,
+        botProgress,
+        setBotProgress,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

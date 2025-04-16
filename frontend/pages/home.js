@@ -3,6 +3,8 @@ import Terminal from "../component/Terminal";
 import Clicker from "../component/clicker";
 import Upgrade from "../component/upgrade";
 import BotMiner from "../component/botMiner";
+import Market from "../component/market";
+
 
 export default function Home() {
   const [activeComponent, setActiveComponent] = useState(null); 
@@ -21,7 +23,9 @@ export default function Home() {
             </>
           ) : activeComponent === "upgrade" ? (
             <Upgrade />
-          ) : (
+          ): activeComponent === "market" ? (
+              <Market />
+            ) : (
             <>
               {/* Ajoutez d'autres composants ici si nécessaire */}
             </>

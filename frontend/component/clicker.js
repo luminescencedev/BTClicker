@@ -32,10 +32,10 @@ export default function Clicker() {
                     let botFarmLevel = data.upgrades.find((u) => u.name === "Bot Farm")?.level || 0;
 
                     // Calculer la puissance des bots
-                    const baseBotPower = 0.000001; // Réduction de la puissance initiale
-                    const ramBonus = baseBotPower * Math.pow(1.3, ramLevel); // RAM augmente la puissance
-                    const coolingMultiplier = Math.pow(1.1, coolingLevel); // Cooling multiplie la puissance
-                    const totalBotPower = ramBonus * coolingMultiplier;
+                    let baseBotPower = 0.000001; // Réduction de la puissance initiale
+                    let ramBonus = baseBotPower * Math.pow(1.3, ramLevel); // RAM augmente la puissance
+                    let coolingMultiplier = Math.pow(1.1, coolingLevel); // Cooling multiplie la puissance
+                    let totalBotPower = ramBonus * coolingMultiplier;
                     setBotPower(totalBotPower);
 
                     // Calculer l'intervalle des bots

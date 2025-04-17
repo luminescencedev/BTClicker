@@ -9,8 +9,8 @@ export default function Market() {
     const [cooldown, setCooldown] = useState(false);
     const [marketCooldown, setMarketCooldown] = useState(60);
 
-    const [randomNumber, setRandomNumber] = useState(null); // Vrai résultat
-    const [displayedNumber, setDisplayedNumber] = useState(null); // Affiché pendant l’animation
+    const [randomNumber, setRandomNumber] = useState(null);
+    const [displayedNumber, setDisplayedNumber] = useState(null);
     const [betResultMessage, setBetResultMessage] = useState("");
 
     const cooldownRef = useRef(null);
@@ -120,7 +120,6 @@ export default function Market() {
         return () => clearInterval(cooldownRef.current);
     }, [cooldown]);
 
-    // ⛔ Bloquer l'accès si le Market Control est niveau 0
     if (marketControlLevel === 0) {
         return (
             <div className="market-container">

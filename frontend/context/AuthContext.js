@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }) => {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
   
-      // 💡 Fetch les données du user une fois connecté
       fetch(`http://localhost:3001/status/${parsedUser.username}`, {
         headers: { Authorization: `Bearer ${storedToken}` },
       })
@@ -57,7 +56,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
-  // 👉 Utilisation du hook pour gérer le minage automatique
   useBotMiner({ user, token, bitcoin, setBitcoin, setBots, setBotProgress });
 
   return (

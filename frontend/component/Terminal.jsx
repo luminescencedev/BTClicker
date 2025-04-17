@@ -204,7 +204,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 }
 
                 const amount = parseFloat(args[1]);
-                const token = localStorage.getItem('token'); // 🔥 ici on le récupère
+                const token = localStorage.getItem('token');
 
                 if (!token) {
                     output = 'Authentication token not found. Please log in again.';
@@ -238,7 +238,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
 
             case '/upgrade':
                 if (user) {
-                    setActiveComponent("upgrade"); // Activer le composant Upgrade
+                    setActiveComponent("upgrade");
                     output = `Upgrade component activated for user "${user.username}".`;
                 } else {
                     output = 'No user is logged in. Please log in to activate the Upgrade component.';
@@ -303,7 +303,6 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                         if (response.ok) {
                             const progression = await response.json();
 
-                            // Formater les données pour un affichage clair
                             const market = progression.market || {};
                             const wallet = progression.wallet || {};
                             const achievements = progression.achievements || [];
@@ -381,7 +380,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                 cmd.startsWith(value)
             );
             setSuggestions(filteredCommands);
-            setSuggestionIndex(-1); // Réinitialiser l'index des suggestions
+            setSuggestionIndex(-1);
         } else {
             setSuggestions([]);
         }

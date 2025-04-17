@@ -3,7 +3,7 @@ import { useContext } from "react";
 import AuthContext from "../context/AuthContext";
 
 export default function BotMiner() {
-  const { bots, botPower, botProgress } = useContext(AuthContext);  // Pas besoin d'appeler useBotMiner ici
+  const { bots, botPower, botProgress } = useContext(AuthContext);
 
   return (
     <div className="flex flex-col items-center justify-center">

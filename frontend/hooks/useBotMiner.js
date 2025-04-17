@@ -77,7 +77,7 @@ export default function useBotMiner({ user, token, bitcoin, setBitcoin, setBots,
 
                 progressRef.current = progress;
                 setLocalBotProgress(progress);
-                setBotProgress(progress); // Update context state as well
+                setBotProgress(progress);
             }, 50);
 
             return () => clearInterval(botMining);

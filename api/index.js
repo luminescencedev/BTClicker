@@ -46,13 +46,13 @@ const authenticate = (req, res, next) => {
 };
 
 app.get("/status/:username", async (req, res) => {
-  const username = req.params.username; // Récupérer le username depuis les paramètres
+  const username = req.params.username;
   try {
-    const result = await User.getProgressionByUsername(username); // Appeler la méthode du modèle
+    const result = await User.getProgressionByUsername(username);
     if (result.status === 404) {
       return res.status(404).json(result.progression);
     }
-    res.status(200).json(result.progression); // Retourner toutes les données de progression
+    res.status(200).json(result.progression);
   } catch (error) {
     console.error(`Route error fetching status for user ${username}:`, error);
     res.status(500).json({
@@ -63,7 +63,7 @@ app.get("/status/:username", async (req, res) => {
 
 app.get("/leaderboard", async (req, res) => {
   try {
-    const users = await User.getAllUsersWithBalances(); // Appeler la méthode du modèle
+    const users = await User.getAllUsersWithBalances();
     res.status(200).json(users);
   } catch (error) {
     console.error("Error fetching leaderboard:", error);
@@ -75,7 +75,7 @@ app.get("/status/:username", async (req, res) => {
     const username = req.params.username;
     try {
         const result = await User.getProgressionByUsername(username);
-        console.log("Progression fetched for user:", username, result); // Log des données
+        console.log("Progression fetched for user:", username, result);
         if (result.status === 404) {
             return res.status(404).json(result.progression);
         }
@@ -96,7 +96,7 @@ app.patch("/progressionClicker", authenticate, async (req, res) => {
         await User.updateProgression(username, { wallet });
         res.status(200).json({ message: "Progression updated successfully" });
     } catch (error) {
-        console.error("Error updating progression:", error); // Log des erreurs
+        console.error("Error updating progression:", error);
         res.status(500).json({ error: "Unexpected server error" });
     }
 });
@@ -111,14 +111,14 @@ app.patch("/progressionUpgrade", authenticate, async (req, res) => {
         await User.updateProgression(username, { wallet, upgrades });
         res.status(200).json({ message: "Progression updated successfully" });
     } catch (error) {
-        console.error("Error updating progression:", error); // Log des erreurs
+        console.error("Error updating progression:", error);
         res.status(500).json({ error: "Unexpected server error" });
     }
 });
 
 
 app.post("/give", authenticate, async (req, res) => {
-  const username = req.user?.username; // 🔐 On prend depuis le token
+  const username = req.user?.username;
   const { amount } = req.body;
 
   if (!username || isNaN(amount) || amount <= 0) {
@@ -131,26 +131,19 @@ app.post("/give", authenticate, async (req, res) => {
     if (!user) {
         return res.status(404).json({ error: "User not found." });
     }
-
-    // Assure-toi de récupérer la balance actuelle de l'utilisateur (avec await)
-    const walletData = await User.getWallet(user.id); // Utilisation de await pour obtenir la valeur retournée
+    const walletData = await User.getWallet(user.id);
     const currentWallet = walletData.status === 200 ? parseFloat(walletData.wallet.balance) : 0;
 
-    // Assure-toi que l'amount est bien un nombre
     const numericAmount = parseFloat(amount);
 
-    // Si la conversion échoue, retourne une erreur
     if (isNaN(numericAmount) || numericAmount <= 0) {
         return res.status(400).json({ error: "Invalid amount" });
     }
 
-    // Additionner la nouvelle valeur à la balance existante
     const newWallet = currentWallet + numericAmount;
 
-    // Mise à jour de la progression avec la nouvelle balance
     await User.updateProgression(username, { wallet: { balance: newWallet } });
 
-    // Retourner une réponse avec la nouvelle balance
     res.status(200).json({ message: `Added ${numericAmount} to ${username}'s wallet.`, newWallet });
 } catch (error) {
     console.error("Error in /give:", error);

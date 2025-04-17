@@ -91,13 +91,7 @@ class User {
                 "description": "This is the third achievement."
                 
             }
-        ],
-        "market":
-        {
-            "trend":"up",
-            "steps": 5
-            
-        }
+        ]
     
     
     };
@@ -121,9 +115,9 @@ class User {
         [username]
       );
       if (result.rows.length === 0) {
-        return null; // User not found
+        return null;
       }
-      return result.rows[0].id_user; // Return the user ID
+      return result.rows[0].id_user;
     } catch (err) {
       console.error("Database query error:", err);
       throw err;
@@ -146,7 +140,7 @@ class User {
 
       return {
         status: 200,
-        progression: result.rows[0].progression, // Retourner toutes les données de progression
+        progression: result.rows[0].progression
       };
     } catch (err) {
       console.error("DB error in getProgressionByUsername:", err);
@@ -159,10 +153,8 @@ class User {
         console.log("Updating progression for user:", username); 
         console.log("Progression data:", progression); 
 
-        // Iterate over the keys in the progression object
         for (const key in progression) {
             if (progression.hasOwnProperty(key)) {
-                // Update only the specific part of the progression
                 await pool.query(
                     `UPDATE users SET progression = jsonb_set(progression, $1, $2::jsonb) WHERE username = $3`,
                     [`{${key}}`, JSON.stringify(progression[key]), username]
@@ -193,7 +185,7 @@ static async getWallet(userId) {
       return {
           status: 200,
           wallet: {
-              balance: parseFloat(result.rows[0].balance) || 0, // Assure-toi que la balance est bien un nombre
+              balance: parseFloat(result.rows[0].balance) || 0,
           },
       };
   } catch (err) {
@@ -203,7 +195,6 @@ static async getWallet(userId) {
 }
 
 
-  // In your user controller
   static async getAllUsers(req, res) {
     try {
       const result = await pool.query(`
@@ -227,10 +218,9 @@ static async getWallet(userId) {
 
       const users = result.rows.map((row) => ({
         username: row.username,
-        balance: parseFloat(row.balance) || 0, // Convertir la balance en nombre
+        balance: parseFloat(row.balance) || 0,
       }));
 
-      // Trier les utilisateurs par balance décroissante
       users.sort((a, b) => b.balance - a.balance);
 
       return users;
@@ -240,7 +230,6 @@ static async getWallet(userId) {
     }
   }
 
-  // In models/user.js - keep your existing queries but ensure they return id_user
   static async getUserById(id_user) {
     try {
       const result = await pool.query(
@@ -269,10 +258,8 @@ static async getWallet(userId) {
   }
   
 
-  // In your user controller
   static async deleteUser(username, currentUsername) {
     try {
-        // Vérifier si l'utilisateur existe
         const userCheck = await pool.query(
             "SELECT id FROM users WHERE username = $1",
             [username]
@@ -282,7 +269,6 @@ static async getWallet(userId) {
             return { success: false, status: 404, message: "User not found" };
         }
 
-        // Empêcher la suppression de son propre compte
         if (currentUsername === parseInt(username)) {
             return {
                 success: false,
@@ -290,8 +276,6 @@ static async getWallet(userId) {
                 message: "Cannot delete your own account",
             };
         }
-
-        // Supprimer l'utilisateur
         await pool.query("DELETE FROM users WHERE username = $1", [username]);
 
         return {

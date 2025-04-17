@@ -27,7 +27,6 @@ export default function Home() {
               <Market />
             ) : (
             <>
-              {/* Ajoutez d'autres composants ici si nécessaire */}
             </>
           )}
         </div>

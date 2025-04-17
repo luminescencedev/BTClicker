@@ -270,50 +270,52 @@ static async getWallet(userId) {
   
 
   // In your user controller
-  static async deleteUser(id_user, currentUserId) {
+  static async deleteUser(username, currentUsername) {
     try {
-      // 1. Check if user exists
-      const userCheck = await pool.query(
-        "SELECT id_user FROM Users WHERE id_user = $1",
-        [id_user]
-      );
+        // Vérifier si l'utilisateur existe
+        const userCheck = await pool.query(
+            "SELECT id FROM users WHERE username = $1",
+            [username]
+        );
 
-      if (userCheck.rows.length === 0) {
-        return { success: false, status: 404, message: "User not found" };
-      }
+        if (userCheck.rows.length === 0) {
+            return { success: false, status: 404, message: "User not found" };
+        }
 
-      if (currentUserId === parseInt(id_user)) {
+        // Empêcher la suppression de son propre compte
+        if (currentUsername === parseInt(username)) {
+            return {
+                success: false,
+                status: 400,
+                message: "Cannot delete your own account",
+            };
+        }
+
+        // Supprimer l'utilisateur
+        await pool.query("DELETE FROM users WHERE username = $1", [username]);
+
         return {
-          success: false,
-          status: 400,
-          message: "Cannot delete your own account",
+            success: true,
+            status: 204,
+            message: "User deleted successfully",
         };
-      }
-
-      await pool.query("DELETE FROM Users WHERE id_user = $1", [id_user]);
-
-      return {
-        success: true,
-        status: 204,
-        message: "User deleted successfully",
-      };
     } catch (error) {
-      console.error("Delete user error:", error);
+        console.error("Error deleting user:", error);
 
-      if (error.code === "23503") {
+        if (error.code === "23503") {
+            return {
+                success: false,
+                status: 400,
+                message: "User has related records. Delete those first.",
+            };
+        }
+
         return {
-          success: false,
-          status: 400,
-          message: "User has related records. Delete those first.",
+            success: false,
+            status: 500,
+            message: "Server error during deletion",
         };
-      }
-
-      return {
-        success: false,
-        status: 500,
-        message: "Server error during deletion",
-      };
     }
-  }
+}
 }
 module.exports = User;

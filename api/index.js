@@ -207,26 +207,26 @@ app.post("/register", async (req, res) => {
 
 
 //DELETE USERS
-app.delete("/users/:id", authenticate, async (req, res) => {
-  const userId = req.params.id;
-  const currentUserId = req.user.id_user;
+app.delete("/users/:username", authenticate, async (req, res) => {
+    const username = req.params.username;
+    const currentUsername = req.user.username;
 
-  try {
-    const result = await User.deleteUser(userId, currentUserId);
+    try {
+        const result = await User.deleteUser(username, currentUsername);
 
-    if (result.success) {
-      return res.status(result.status).send();
-    } else {
-      return res.status(result.status).json({
-        error: result.message,
-      });
+        if (result.success) {
+            return res.status(result.status).send();
+        } else {
+            return res.status(result.status).json({
+                error: result.message,
+            });
+        }
+    } catch (error) {
+        console.error(`Error deleting user ${username}:`, error);
+        res.status(500).json({
+            error: "Unexpected server error",
+        });
     }
-  } catch (error) {
-    console.error(`Route error deleting user ${userId}:`, error);
-    res.status(500).json({
-      error: "Unexpected server error",
-    });
-  }
 });
 
 

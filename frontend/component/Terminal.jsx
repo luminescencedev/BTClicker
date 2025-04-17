@@ -14,6 +14,7 @@ const Terminal = ({ setActiveComponent }) => {
         '/achievements',
         '/clear',
         '/clicker',
+        '/delete',
         '/give',
         '/help',
         '/leaderboard',
@@ -133,6 +134,7 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
 /achievements - View your achievements
 /clear - Clear the terminal
 /clicker - Activate the Clicker Tab
+/delete [username] [password] - Delete your account
 /help - Display this help message
 /leaderboard - View the leaderboard
 /login [username] [password] - Log in with your credentials
@@ -240,6 +242,53 @@ $$$$$$$  |  $$ |   \\$$$$$$  |$$$$$$$$\\ $$$$$$\\ \\$$$$$$  |$$ | \\$$\\ $$$$$$$
                     output = `Upgrade component activated for user "${user.username}".`;
                 } else {
                     output = 'No user is logged in. Please log in to activate the Upgrade component.';
+                }
+                break;
+
+            case '/delete':
+                if (args.length < 3) {
+                    output = 'Usage: /delete [username] [password]';
+                } else {
+                    const username = args[1];
+                    const password = args[2];
+
+                    try {
+                        const response = await fetch(`http://localhost:3001/login`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username, password }),
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            const token = data.token;
+
+                            console.log(user.username);
+
+                            const deleteResponse = await fetch(`http://localhost:3001/users/${user.username}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            });
+
+                            if (deleteResponse.ok) {
+                                output = `User "${username}" has been successfully deleted.`;
+                                logout();
+                                setActiveComponent(""); // Reset active component after deletion
+                                
+                            } else {
+                                const errorData = await deleteResponse.json();
+                                output = `Error deleting user: ${errorData.error}`;
+                            }
+                        } else {
+                            const errorData = await response.json();
+                            output = `Authentication failed: ${errorData.error}`;
+                        }
+                    } catch (error) {
+                        output = `Network error: ${error.message}`;
+                    }
                 }
                 break;
 
